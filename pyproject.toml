@@ -40,7 +40,6 @@ build-backend = "poetry.core.masonry.api"
 [tool.pytest.ini_options]
 filterwarnings = [
     "ignore::DeprecationWarning", 
-    "ignore::anndata.OldFormatWarning",
     "ignore::plotnine.exceptions.PlotnineWarning"
 ]
 testpaths=["tests"]
