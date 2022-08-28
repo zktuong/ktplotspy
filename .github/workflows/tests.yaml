@@ -69,10 +69,12 @@ jobs:
     - name: Install
       run: |
         python -m pip install .[test]
+      shell: bash {0}
 
     - name: Test with pytest
       run: |
         python -m pytest
+      shell: bash {0}
 
     - name: Show coverage
       run: |
