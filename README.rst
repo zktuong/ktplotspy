@@ -17,9 +17,6 @@ Installation
     pip install ktplotspy
 
 
-Installation
-------------
-
 Support
 -------
 
