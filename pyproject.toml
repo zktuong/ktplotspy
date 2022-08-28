@@ -14,11 +14,11 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-anndata = "^0.7.6"
 pandas= "*"
 numpy = "*"
 plotnine = "*"
 seaborn = "*"
+anndata = {optional = true, version = "^0.7.6"}
 black = {optional = true, version = "*"}
 pytest-cov = {optional = true, version = "*"}
 
@@ -27,6 +27,7 @@ pytest-cov = {optional = true, version = "*"}
 
 [tool.poetry.extras]
 test = [
+	"anndata",
 	"black",
 	"pytest-cov",
 ]

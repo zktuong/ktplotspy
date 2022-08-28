@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from anndata import AnnData
 from matplotlib.colors import ListedColormap
 from typing import Optional, Union, Dict
 
@@ -11,7 +10,7 @@ from ktplotspy.utils.support import diverging_palette
 
 
 def plot_cpdb_heatmap(
-    adata: AnnData,
+    adata: "AnnData",
     pvals: pd.DataFrame,
     celltype_key: str,
     degs_analysis: bool = False,

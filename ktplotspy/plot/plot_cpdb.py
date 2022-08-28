@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import re
 
-from anndata import AnnData
 from plotnine import (
     aes,
     element_blank,
@@ -40,7 +39,7 @@ from ktplotspy.utils.support import (
 
 
 def plot_cpdb(
-    adata: AnnData,
+    adata: "AnnData",
     cell_type1: str,
     cell_type2: str,
     means: pd.DataFrame,
