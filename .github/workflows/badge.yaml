@@ -30,8 +30,8 @@ jobs:
       - name: version badge
         uses: RubbaBoy/BYOB@v1.2.1
         with:
-          NAME: master-version
-          LABEL: 'master-version'
+          NAME: version
+          LABEL: 'version'
           ICON: 'github'
           STATUS: ${{ steps.version.outputs.version}}
           COLOR: green
