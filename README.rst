@@ -1,6 +1,9 @@
 |Docs| |Master| |MasterTest| |CodeCov| |Colab|
 
-This is a light-weight python library for plotting 
+ktplotspy
+---------
+
+Welcome! This is a super light-weight python library for plotting 
 `CellphoneDB <https://www.github.com/ventolab/CellphoneDB/>`__ results. Ported from 
 `ktplots <https://www.github.com/zktuong/ktplots/>`__ R package. For more options, 
 please check out the original R 
