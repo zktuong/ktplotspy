@@ -1,4 +1,4 @@
-|Docs| |Master| |MasterTest| |CodeCov| |Colab|
+|Docs| |Master| |MasterTest| |CodeCov|
 
 ktplotspy
 ---------
