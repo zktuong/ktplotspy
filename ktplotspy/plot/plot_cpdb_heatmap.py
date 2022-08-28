@@ -22,6 +22,7 @@ def plot_cpdb_heatmap(
     mid_col: str = "#ffdab9",
     high_col: str = "#8b0a50",
     cmap: Optional[Union[str, ListedColormap]] = None,
+    title: str = "",
     return_tables: bool = False,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
@@ -55,6 +56,8 @@ def plot_cpdb_heatmap(
         High colour in gradient.
     cmap : Optional[Union[ListedColormap, str]], optional
         Built-in matplotlib colormap names or custom `ListedColormap`
+    title : str, optional
+        Plot title.
     return_tables : bool, optional
         Whether to return the dataframes storing the interaction network.
     **kwargs
@@ -93,9 +96,10 @@ def plot_cpdb_heatmap(
     else:
         colmap = cmap
     if not return_tables:
-        return sns.clustermap(
-            count_mat, row_cluster=row_cluster, col_cluster=col_cluster, tree_kws={"linewidths": 0}, cmap=colmap, **kwargs
-        )
+        g = sns.clustermap(count_mat, row_cluster=row_cluster, col_cluster=col_cluster, tree_kws={"linewidths": 0}, cmap=colmap, **kwargs)
+        if title != "":
+            g.fig.suptitle(title)
+        return g
     else:
         out = {"count_network": count_mat, "interaction_count": all_sum}
         return out
