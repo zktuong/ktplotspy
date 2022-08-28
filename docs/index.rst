@@ -1,10 +1,10 @@
-.. include:: ../README.rst
+.. include:: README.rst
 
 .. toctree::
    :hidden:   
    :maxdepth: 1
 
-   readme_link
+   README
 
 .. toctree::
    :hidden:
