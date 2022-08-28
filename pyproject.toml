@@ -20,6 +20,11 @@ seaborn = "*"
 anndata = {optional = true, version = "^0.7.6"}
 black = {optional = true, version = "*"}
 pytest-cov = {optional = true, version = "*"}
+nbsphinx = {optional = true, version = "*"}
+sphinx-autodoc-typehints = {optional = true, version = "*"}
+sphinx_rtd_theme = {optional = true, version = "*"}
+readthedocs-sphinx-ext = {optional = true, version = "*"}
+recommonmark = {optional = true, version = "*"}
 
 [tool.poetry.dev-dependencies]
 
