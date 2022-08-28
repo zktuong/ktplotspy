@@ -1,0 +1,38 @@
+name: badge
+
+on:
+  push:
+    branches:
+      - "master"
+  create:
+    tags:
+      - "*"
+
+
+jobs:
+  master:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.7'
+      - id: version
+        name: Install package
+        run: |
+          python -m pip install .
+          echo "##[set-output name=version;]$(python ktplotspy/utils/badge.py)"
+      - name: version badge
+        uses: RubbaBoy/BYOB@v1.2.1
+        with:
+          NAME: master-version
+          LABEL: 'master-version'
+          ICON: 'github'
+          STATUS: ${{ steps.version.outputs.version}}
+          COLOR: green
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
