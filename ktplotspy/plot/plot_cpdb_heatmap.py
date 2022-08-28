@@ -16,12 +16,14 @@ def plot_cpdb_heatmap(
     degs_analysis: bool = False,
     log1p_transform: bool = False,
     alpha: float = 0.05,
+    linewidths: float = 0.5,
     row_cluster: bool = True,
     col_cluster: bool = True,
     low_col: str = "#104e8b",
     mid_col: str = "#ffdab9",
     high_col: str = "#8b0a50",
     cmap: Optional[Union[str, ListedColormap]] = None,
+    title: str = "",
     return_tables: bool = False,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
@@ -43,6 +45,8 @@ def plot_cpdb_heatmap(
         Whether to log1p transform the output.
     alpha : float, optional
         P value threshold value for significance.
+    linewidths : float, optional
+        Width of lines between each cell.
     row_cluster : bool, optional
         Whether to cluster rows.
     col_cluster : bool, optional
@@ -55,6 +59,8 @@ def plot_cpdb_heatmap(
         High colour in gradient.
     cmap : Optional[Union[ListedColormap, str]], optional
         Built-in matplotlib colormap names or custom `ListedColormap`
+    title : str, optional
+        Plot title.
     return_tables : bool, optional
         Whether to return the dataframes storing the interaction network.
     **kwargs
@@ -93,9 +99,18 @@ def plot_cpdb_heatmap(
     else:
         colmap = cmap
     if not return_tables:
-        return sns.clustermap(
-            count_mat, row_cluster=row_cluster, col_cluster=col_cluster, tree_kws={"linewidths": 0}, cmap=colmap, **kwargs
+        g = sns.clustermap(
+            count_mat,
+            row_cluster=row_cluster,
+            col_cluster=col_cluster,
+            linewidths=linewidths,
+            tree_kws={"linewidths": 0},
+            cmap=colmap,
+            **kwargs
         )
+        if title != "":
+            g.fig.suptitle(title)
+        return g
     else:
         out = {"count_network": count_mat, "interaction_count": all_sum}
         return out

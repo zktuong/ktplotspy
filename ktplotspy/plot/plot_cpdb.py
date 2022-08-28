@@ -60,6 +60,7 @@ def plot_cpdb(
     highlight_size: Optional[int] = None,
     special_character_regex_pattern: Optional[str] = None,
     exclude_interactions: Optional[Union[List, str]] = None,
+    title: str = "",
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
 ) -> Union[ggplot, pd.DataFrame]:
@@ -115,18 +116,20 @@ def plot_cpdb(
         Just use alpha numeric characters and underscores if necessary.
     exclude_interactions : Optional[Union[List, str]], optional
         If provided, the interactions will be removed from the output.
+    title : str, optional
+        Plot title.
     return_table : bool, optional
         Whether or not to return the results as a dataframe.
     figsize : Tuple[Union[int, float], Union[int, float]], optional
         Figure size.
 
-    No Longer Returned
-    ------------------
+    Returns
+    -------
     Union[ggplot, pd.DataFrame]
         Either a plotnine `ggplot` plot or a pandas `Dataframe` holding the results.
 
-    No Longer Raises
-    ----------------
+    Raises
+    ------
     KeyError
         If genes and gene_family are both provided, or wrong key for gene family provided, the error will occur.
     """
@@ -215,10 +218,10 @@ def plot_cpdb(
         means_matx = means_matx.loc[h_order]
         pvals_matx = pvals_matx.loc[h_order]
     if standard_scale:
-        means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=0)
+        means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
     # prepare final table
-    colm = "means" if standard_scale else "scaled_means"
+    colm = "scaled_means" if standard_scale else "means"
     df = means_matx.melt(ignore_index=False).reset_index()
     df.columns = ["interaction_group", "celltype_group", colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
@@ -252,6 +255,7 @@ def plot_cpdb(
         # set global figure size
         options.figure_size = figsize
         if highlight_size is not None:
+            max_highlight_size = highlight_size
             stroke = df.x_stroke
         else:
             stroke = df.neglog10p
@@ -318,6 +322,8 @@ def plot_cpdb(
             )
         if highlight_size is not None:
             g = g + guides(stroke=None)
-        if gene_family is not None:
+        if title != "":
+            g = g + ggtitle(title)
+        elif gene_family is not None:
             g = g + ggtitle(gene_family)
         return g
