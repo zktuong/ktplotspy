@@ -231,6 +231,9 @@ def plot_cpdb(
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
     # prepare for non-default style plotting
+    for i in df.index:
+        if df.at[i, colm] == 0:
+            df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
@@ -244,7 +247,7 @@ def plot_cpdb(
         if not isinstance(exclude_interactions, list):
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
-    df["neglog10p"] = -1 * np.log10(df.pvals)
+    df["neglog10p"] = abs(-1 * np.log10(df.pvals))
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
@@ -271,7 +274,7 @@ def plot_cpdb(
                 g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke))
         g = (
             g
-            + geom_point()
+            + geom_point(na_rm=True)
             + theme_bw()
             + theme(
                 axis_text_x=element_text(angle=90, hjust=0, colour="#000000"),
@@ -318,6 +321,14 @@ def plot_cpdb(
                         order=3,
                     ),
                 )
+            )
+            df2 = df.copy()
+            for i in df2.index:
+                if df2.at[i, "pvals"] < alpha:
+                    df2.at[i, colm] = np.nan
+            g = (
+                g
+                + geom_point(aes(x="celltype_group", y="interaction_group", colour=colm, size=colm), df2, inherit_aes=False, na_rm=True)
                 + scale_colour_continuous(cmap_name=cmap_name)
             )
         if highlight_size is not None:

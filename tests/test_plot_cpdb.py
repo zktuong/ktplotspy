@@ -220,6 +220,32 @@ def test_plot_not_default(mock_show, adata, means, pvals, style, size):
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata", "means", "pvals")
 @pytest.mark.parametrize(
+    "style,size",
+    [
+        pytest.param(True, None),
+        pytest.param(True, 2),
+        pytest.param(False, None),
+        pytest.param(False, 2),
+    ],
+)
+def test_plot_not_default_v2(mock_show, adata, means, pvals, style, size):
+    g = plot_cpdb(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2=".",
+        means=means,
+        pvals=pvals,
+        celltype_key="celltype",
+        genes=["PTPRC", "CD40", "CLEC2D"],
+        default_style=style,
+        highlight_size=size,
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "means", "pvals")
+@pytest.mark.parametrize(
     "exclude",
     [
         "CXCL13-CXCR5",
