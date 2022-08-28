@@ -64,6 +64,7 @@ verbose = 1
 quiet = false
 whitelist-regex = []
 color = true
+exclude = ["test"]
 
 [tool.black]
 line-length = 140
