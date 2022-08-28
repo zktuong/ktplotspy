@@ -1,7 +1,7 @@
 |Docs| |PyPI| |Master| |MasterTest| |CodeCov|
 
-ktplotspy
----------
+ktplots-*py*
+------------
 
 |logo|
 

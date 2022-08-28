@@ -1,7 +1,7 @@
 |Docs| |PyPI| |Master| |MasterTest| |CodeCov|
 
-ktplotspy
----------
+ktplots-*py*
+------------
 
 Welcome! This is a super light-weight python library for plotting 
 `CellphoneDB <https://www.github.com/ventolab/CellphoneDB/>`__ results. Ported from 
