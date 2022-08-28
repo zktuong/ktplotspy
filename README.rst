@@ -29,8 +29,9 @@ post in the issue tracker and I will get back to you.
 Citation
 --------
 
-If you find this useful, please consider leaving a star and citing this repository and the original
-`ktplots <https://www.github.com/zktuong/ktplots/>`__ R repository.
+If you find this useful, please consider citing the github repositories. Also leave a star at the 
+`ktplotspy <https://www.github.com/zktuong/ktplotspy/>`__ and the original
+`ktplots <https://www.github.com/zktuong/ktplots/>`__ repositories!
 
 .. |Docs| image:: https://readthedocs.org/projects/ktplotspy/badge/?version=latest
    :target: https://ktplotspy.readthedocs.io/en/latest/?badge=latest
