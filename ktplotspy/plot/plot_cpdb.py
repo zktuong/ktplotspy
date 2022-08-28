@@ -19,11 +19,11 @@ from plotnine import (
     scale_colour_manual,
     scale_fill_continuous,
     scale_fill_manual,
-    scale_size_radius,
+    scale_size_continuous,
     theme,
     theme_bw,
 )
-from typing import List, Literal, Optional, Union
+from typing import List, Literal, Optional, Union, Tuple
 
 from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT
 from ktplotspy.utils.support import (
@@ -54,12 +54,14 @@ def plot_cpdb(
     standard_scale: bool = True,
     cmap_name: str = "viridis",
     max_size: int = 8,
+    max_highlight_size: int = 3,
     default_style: bool = True,
     highlight_col: str = "#d62728",
     highlight_size: Optional[int] = None,
     special_character_regex_pattern: Optional[str] = None,
     exclude_interactions: Optional[Union[List, str]] = None,
     return_table: bool = False,
+    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results.
 
@@ -98,6 +100,8 @@ def plot_cpdb(
         Matplotlib built-in colormap names.
     max_size : int, optional
         Maximum size of points in plot.
+    max_highlight_size : int, optional
+        Maximum highlight size of points in plot.
     default_style : bool, optional
         Whether or not to plot in default style or inspired from `squidpy`'s plotting style.
     highlight_col : str, optional
@@ -113,14 +117,16 @@ def plot_cpdb(
         If provided, the interactions will be removed from the output.
     return_table : bool, optional
         Whether or not to return the results as a dataframe.
+    figsize : Tuple[Union[int, float], Union[int, float]], optional
+        Figure size.
 
-    Returns
-    -------
+    No Longer Returned
+    ------------------
     Union[ggplot, pd.DataFrame]
         Either a plotnine `ggplot` plot or a pandas `Dataframe` holding the results.
 
-    Raises
-    ------
+    No Longer Raises
+    ----------------
     KeyError
         If genes and gene_family are both provided, or wrong key for gene family provided, the error will occur.
     """
@@ -235,66 +241,83 @@ def plot_cpdb(
         if not isinstance(exclude_interactions, list):
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
-    df["neglog10p"] = abs(-1 * np.log10(df.pvals))
+    df["neglog10p"] = -1 * np.log10(df.pvals)
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
-    # plotting
-    if default_style:
-        g = ggplot(df, aes(x="celltype_group", y="interaction_group", color="significant", fill=colm, size=colm))
-    else:
-        highlight_col = "#FFFFFF"  # enforce this
-        g = ggplot(df, aes(x="celltype_group", y="interaction_group", color=colm, fill="significant", size=colm))
-    if highlight_size is not None:
-        g = g + geom_point(stroke=df.x_stroke)
-    else:
-        g = g + geom_point(stroke=df.neglog10p)
-    g = (
-        g
-        + theme_bw()
-        + theme(
-            axis_text_x=element_text(angle=90, hjust=0, color="#000000"),
-            axis_text_y=element_text(color="#000000"),
-            axis_ticks=element_blank(),
-            axis_title_x=element_blank(),
-            axis_title_y=element_blank(),
-            legend_key=element_rect(alpha=0, width=0, height=0),
-            legend_direction="vertical",
-            legend_box="horizontal",
-        )
-        + scale_size_radius((0, max_size))
-    )
-    if default_style:
-        g = (
-            g
-            + scale_colour_manual(values=highlight_col, na_translate=False)
-            + guides(
-                colour=guide_colourbar(barheight=10, barwidth=4, label=False, ticks=False, draw_ulim=True, draw_llim=True, order=2),
-                size=guide_legend(
-                    keyheight=13,
-                    reverse=True,
-                    order=3,
-                    title="",
-                ),
-            )
-            + scale_fill_continuous(cmap_name=cmap_name)
-        )
-    else:
-        g = (
-            g
-            + scale_fill_manual(values=highlight_col, na_translate=False)
-            + guides(
-                fill=guide_colourbar(barheight=10, barwidth=4, label=False, ticks=False, draw_ulim=True, draw_llim=True, order=2),
-                size=guide_legend(
-                    keyheight=13,
-                    reverse=True,
-                    order=3,
-                    title="",
-                ),
-            )
-            + scale_colour_continuous(cmap_name=cmap_name)
-        )
-    if gene_family is not None:
-        g = g + ggtitle(gene_family)
+    if all(pd.isnull(df["significant"])):
+        df["significant"] = "no"
+        highlight_col = "#FFFFFF"
     if return_table:
         return df
     else:
+        # set global figure size
+        options.figure_size = figsize
+        if highlight_size is not None:
+            stroke = df.x_stroke
+        else:
+            stroke = df.neglog10p
+        # plotting
+        if default_style:
+            g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke))
+        else:
+            if all(df["significant"] == "no"):
+                g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke))
+                default_style = True
+            else:
+                highlight_col = "#FFFFFF"  # enforce this
+                g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke))
+        g = (
+            g
+            + geom_point()
+            + theme_bw()
+            + theme(
+                axis_text_x=element_text(angle=90, hjust=0, colour="#000000"),
+                axis_text_y=element_text(colour="#000000"),
+                axis_ticks=element_blank(),
+                axis_title_x=element_blank(),
+                axis_title_y=element_blank(),
+                legend_key=element_rect(alpha=0, width=0, height=0),
+                legend_direction="vertical",
+                legend_box="horizontal",
+            )
+            + scale_size_continuous(range=(0, max_size), aesthetics=["size"])
+            + scale_size_continuous(range=(0, max_highlight_size), aesthetics=["stroke"])
+        )
+        if default_style:
+            g = (
+                g
+                + scale_colour_manual(values=highlight_col, na_translate=False)
+                + guides(
+                    fill=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                    size=guide_legend(
+                        reverse=True,
+                        order=2,
+                    ),
+                    stroke=guide_legend(
+                        reverse=True,
+                        order=3,
+                    ),
+                )
+                + scale_fill_continuous(cmap_name=cmap_name)
+            )
+        else:
+            g = (
+                g
+                + scale_fill_manual(values=highlight_col, na_translate=False)
+                + guides(
+                    colour=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                    size=guide_legend(
+                        reverse=True,
+                        order=2,
+                    ),
+                    stroke=guide_legend(
+                        reverse=True,
+                        order=3,
+                    ),
+                )
+                + scale_colour_continuous(cmap_name=cmap_name)
+            )
+        if highlight_size is not None:
+            g = g + guides(stroke=None)
+        if gene_family is not None:
+            g = g + ggtitle(gene_family)
         return g
