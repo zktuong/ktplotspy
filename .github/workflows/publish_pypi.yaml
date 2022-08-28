@@ -28,4 +28,4 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
         poetry build
-        twine upload dist/*
+        poetry publish
