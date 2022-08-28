@@ -71,7 +71,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --cov=ktplotspy --cov-report=xml
+        python -m pytest --cov=ktplotspy --cov-report=xml
 
     - name: Show coverage
       run: |
