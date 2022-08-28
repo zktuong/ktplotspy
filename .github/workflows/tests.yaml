@@ -1,0 +1,90 @@
+name: tests
+
+on:
+  pull_request:
+    branches:
+      - "*"
+  push:
+    branches:
+      - "master"
+
+jobs:
+  changes:
+    name: Checking changed files
+    runs-on: ubuntu-latest
+    outputs:
+      changed_file: ${{ steps.files.outputs.added_modified }}
+      keepgoing: ${{ steps.checkfiles.outputs.keepgoing }}
+    steps:
+      - id: files
+        uses: jitterbit/get-changed-files@b17fbb00bdc0c0f63fcf166580804b4d2cdc2a42
+        with:
+          format: 'json'
+      - id: checkfiles
+        run: |
+          if [[ ${{ steps.files.outputs.added_modified }} == *.yml* || ${{ steps.files.outputs.added_modified }} == *.py* || ${{ steps.files.outputs.added_modified }} == *test* || ${{ steps.files.outputs.added_modified }} == *requirements* ]]; then
+            echo "::set-output name=keepgoing::true"
+          else
+            echo "::set-output name=keepgoing::false"
+          fi
+
+  tests:
+    needs:
+      - changes
+    if: needs.changes.outputs.keepgoing == 'true'
+    timeout-minutes: 720
+    defaults:
+      run:
+        shell: bash -l {0}
+    strategy:
+      max-parallel: 6
+      matrix:
+        config:
+          - { python-version: 3.7, os: ubuntu-latest}
+          - { python-version: 3.8, os: ubuntu-latest}
+          - { python-version: 3.9, os: ubuntu-latest}
+          - { python-version: "3.10", os: ubuntu-latest}
+          - { python-version: 3.7, os: macos-latest}
+          - { python-version: 3.8, os: macos-latest}
+          - { python-version: 3.9, os: macos-latest}
+          - { python-version: "3.10", os: macos-latest}
+          # disabled until it's fixed.
+    runs-on: ${{ matrix.config.os }}
+    env:
+      TZ: UTC
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v2
+    - uses: actions/cache@v1
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-    
+    - name: Install
+      run: |
+        python -m pip install .
+
+    - name: Test with pytest
+      run: |
+        python -m pytest --cov=ktplotspy --cov-report=xml
+
+    - name: Show coverage
+      run: |
+        coverage report
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        directory: ./coverage/reports/
+        env_vars: ${{ format('OS={0},PYTHON={1}', matrix.config.os, matrix.config.python-version) }}
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        path_to_write_report: ./coverage/codecov_report.txt
+        verbose: true

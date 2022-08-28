@@ -1,0 +1,46 @@
+[project]
+name = "ktplotspy"
+version = "0.1.0"
+description = "Python library for plotting Cellphonedb results. Ported from ktplots R package."
+authors = ["Kelvin <26215587+zktuong@users.noreply.github.com>"]
+license = "MIT"
+dependencies = [
+    "anndata>=0.7.6",
+    "numpy>=1.21.6",
+    "pandas>=1.4.2",
+    "plotnine>=0.8.0",
+    "seaborn>=0.11.2"
+]
+
+[tool.setuptools]
+py-modules = ["ktplotspy"]
+
+# Configuration for pytest
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore::DeprecationWarning", 
+    "ignore::anndata.OldFormatWarning",
+    "ignore::plotnine.exceptions.PlotnineWarning"
+]
+testpaths=["tests"]
+
+
+# Configuration for the interrogate tool which checks docstring coverage
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-semiprivate = false
+ignore-private = false
+ignore-property-decorators = false
+ignore-module = true
+fail-under = 100.0
+ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
+verbose = 1
+quiet = false
+whitelist-regex = []
+color = true
+
+[tool.black]
+line-length = 140
+include = '\.pyi?$'
