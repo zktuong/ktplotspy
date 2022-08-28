@@ -1,6 +1,12 @@
 name: Code style checks
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - "master"
+  create:
+    tags:
+      - "*"
 
 jobs:
   black:

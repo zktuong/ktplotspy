@@ -44,7 +44,10 @@ filterwarnings = [
     "ignore::plotnine.exceptions.PlotnineWarning"
 ]
 testpaths=["tests"]
-
+addopts = """\
+    --cov ktplotspy \
+    --cov-report=xml
+"""
 
 # Configuration for the interrogate tool which checks docstring coverage
 [tool.interrogate]
