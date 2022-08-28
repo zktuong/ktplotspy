@@ -123,13 +123,13 @@ def plot_cpdb(
     figsize : Tuple[Union[int, float], Union[int, float]], optional
         Figure size.
 
-    No Longer Returned
-    ------------------
+    Returns
+    -------
     Union[ggplot, pd.DataFrame]
         Either a plotnine `ggplot` plot or a pandas `Dataframe` holding the results.
 
-    No Longer Raises
-    ----------------
+    Raises
+    ------
     KeyError
         If genes and gene_family are both provided, or wrong key for gene family provided, the error will occur.
     """
