@@ -1,3 +1,13 @@
+[build-system]
+requires = [
+    'flit_core >=2,<4',
+    'setuptools_scm',
+    'pytoml',
+    'wheel',
+    'importlib_metadata>=0.7; python_version < "3.8"'
+]
+build-backend = 'flit_core.buildapi'
+
 [project]
 name = "ktplotspy"
 version = "0.1.0"
