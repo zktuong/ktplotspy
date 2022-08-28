@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import toml
 from pathlib import Path
 
 from ktplotspy.plot import *
