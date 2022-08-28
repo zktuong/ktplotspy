@@ -57,7 +57,7 @@ jobs:
     - uses: actions/setup-node@v2
     - uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ matrix.config.python-version }}
 
     - uses: actions/cache@v1
       with:
