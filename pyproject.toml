@@ -20,8 +20,10 @@ dependencies = [
 
 [project.optional-dependencies]
 test = [
-    'pytest-cov',
+    'pytest',
     'black',
+    'coverage',
+    'pytest-cov'
 ]
 
 [tool.setuptools]
