@@ -18,6 +18,12 @@ dependencies = [
     "seaborn>=0.11.2"
 ]
 
+[project.optional-dependencies]
+test = [
+    'pytest-cov',
+    'black',
+]
+
 [tool.setuptools]
 py-modules = ["ktplotspy"]
 
