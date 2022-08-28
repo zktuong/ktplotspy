@@ -3,8 +3,6 @@
 ktplotspy
 ---------
 
-|logo|
-
 Welcome! This is a super light-weight python library for plotting 
 `CellphoneDB <https://www.github.com/ventolab/CellphoneDB/>`__ results. Ported from 
 `ktplots <https://www.github.com/zktuong/ktplots/>`__ R package. For more options, 
@@ -48,4 +46,3 @@ If you find this useful, please consider citing the github repositories. Also le
    :target: https://github.com/zktuong/ktplotspy/actions/workflows/tests.yml
 .. |CodeCov| image:: https://codecov.io/gh/zktuong/ktplotspy/branch/master/graph/badge.svg?token=661BMU1FBO
    :target: https://codecov.io/gh/zktuong/ktplotspy
-.. |logo| image:: docs/notebooks/logo.png
