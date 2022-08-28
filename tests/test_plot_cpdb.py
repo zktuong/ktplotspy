@@ -25,6 +25,22 @@ def test_plot_cpdb(mock_show, adata, means, pvals):
 
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata", "means", "pvals")
+def test_plot_cpdb_title(mock_show, adata, means, pvals):
+    g = plot_cpdb(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2=".",
+        means=means,
+        pvals=pvals,
+        celltype_key="celltype",
+        genes=["PTPRC", "TNFSF13"],
+        title="interacting interactions!",
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "means", "pvals")
 def test_plot_spec_character(mock_show, adata, means, pvals):
     g = plot_cpdb(
         adata=adata,
