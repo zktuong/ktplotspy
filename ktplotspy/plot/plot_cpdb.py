@@ -275,7 +275,7 @@ def plot_cpdb(
                     title="",
                 ),
             )
-            + scale_colour_continuous(cmap_name=cmap_name)
+            + scale_fill_continuous(cmap_name=cmap_name)
         )
     else:
         g = (
@@ -290,7 +290,7 @@ def plot_cpdb(
                     title="",
                 ),
             )
-            + scale_fill_continuous(cmap_name=cmap_name)
+            + scale_colour_continuous(cmap_name=cmap_name)
         )
     if gene_family is not None:
         g = g + ggtitle(gene_family)
