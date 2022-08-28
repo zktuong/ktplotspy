@@ -5,7 +5,7 @@ import pytest
 
 from pathlib import Path
 
-DATAPATH = Path(__file__).parent.parent / "data"
+DATAPATH = Path(__file__).parent.parent.parent / "data"
 
 
 @pytest.fixture
