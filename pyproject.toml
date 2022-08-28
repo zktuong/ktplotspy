@@ -31,11 +31,9 @@ test = [
     "pytest-cov",
 ]
 docs = [
-    "nbsphinx==0.8.6",
-    "sphinx==4.1.2",
-    "sphinx_autodoc_typehints>=1.8.0",
-    "sphinx_rtd_theme>=0.4,<0.5",
-    "six",
+    "nbsphinx",
+    "sphinx-autodoc-typehints",
+    "sphinx_rtd_theme",
     "readthedocs-sphinx-ext",
     "recommonmark",
 ]
