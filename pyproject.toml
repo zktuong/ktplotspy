@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ktplotspy"
-version = "0.1.3"
+version = "0.1.1"
 description = "Python library for plotting Cellphonedb results. Ported from ktplots R package."
 authors = ["Kelvin Tuong <26215587+zktuong@users.noreply.github.com>"]
 license = "MIT"
