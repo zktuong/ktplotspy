@@ -59,6 +59,8 @@ jobs:
       with:
         python-version: ${{ matrix.config.python-version }}
         cache: 'pip'
+        cache-dependency-path: |
+          **/pyproject.toml
 
     # - uses: actions/cache@v1
     #   with:
