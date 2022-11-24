@@ -154,18 +154,20 @@ def prep_celltype_query(
     return celltype
 
 
-def prep_query_group(means: pd.DataFrame) -> Dict:
+def prep_query_group(means: pd.DataFrame, custom_dict: Optional[Dict[str, List[str]]] = None) -> Dict:
     """Return gene family query groups.
 
     Parameters
     ----------
     means : pd.DataFrame
         Means table.
+    custom_dict : Optional[Dict[str, List[str]]], optional
+        If provided, will update the query groups with the custom list of genes.
 
     Returns
     -------
     Dict
-        Dictionary of gene familys.
+        Dictionary of gene families.
     """
     chemokines = [i for i in means.interacting_pair if re.search(r"^CXC|CCL|CCR|CX3|XCL|XCR", i)]
     th1 = [
@@ -195,7 +197,8 @@ def prep_query_group(means: pd.DataFrame) -> Dict:
         )
     ]
     coinhibitory = [i for i in means.interacting_pair if re.search(r"SIRP|CD47|ICOS|TIGIT|CTLA4|PDCD1|CD274|LAG3|HAVCR|VSIR", i)]
-    return {
+
+    query_dict = {
         "chemokines": chemokines,
         "th1": th1,
         "th2": th2,
@@ -204,6 +207,10 @@ def prep_query_group(means: pd.DataFrame) -> Dict:
         "costimulatory": costimulatory,
         "coinhibitory": coinhibitory,
     }
+    if custom_dict is not None:
+        for k, r in custom_dict.items():
+            query_dict.update({k: [i for i in means.interacting_pair if re.search(r"|".join(r), i)]})
+    return query_dict
 
 
 def prep_table(data: pd.DataFrame) -> pd.DataFrame:
