@@ -53,6 +53,7 @@ def plot_cpdb(
     gene_family: Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]] = None,
     custom_gene_family: Optional[Dict[str, List[str]]] = None,
     standard_scale: bool = True,
+    cluster_rows: bool = True,
     cmap_name: str = "viridis",
     max_size: int = 8,
     max_highlight_size: int = 3,
@@ -102,6 +103,8 @@ def plot_cpdb(
         must be specified for this to work.
     standard_scale : bool, optional
         Whether or not to scale the mean interaction values from 0 to 1 per receptor-ligand variable.
+    cluster_rows : bool, optional
+        Whether or not to cluster the rows (interactions).
     cmap_name : str, optional
         Matplotlib built-in colormap names.
     max_size : int, optional
@@ -228,10 +231,11 @@ def plot_cpdb(
             pvals_matx = pvals_matx.loc[keep_rows]
             means_matx = means_matx.loc[keep_rows]
     # reun hierarchical clustering on the rows based on interaction value.
-    if means_matx.shape[0] > 2:
-        h_order = hclust(means_matx, axis=0)
-        means_matx = means_matx.loc[h_order]
-        pvals_matx = pvals_matx.loc[h_order]
+    if cluster_rows:
+        if means_matx.shape[0] > 2:
+            h_order = hclust(means_matx, axis=0)
+            means_matx = means_matx.loc[h_order]
+            pvals_matx = pvals_matx.loc[h_order]
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
