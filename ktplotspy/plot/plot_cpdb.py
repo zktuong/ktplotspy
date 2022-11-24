@@ -161,7 +161,7 @@ def plot_cpdb(
                 for gf in gene_family:
                     if gf.lower() in query_group:
                         for gfg in query_group[gf.lower()]:
-                            query.apend(gfg)
+                            query.append(gfg)
                     else:
                         raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
                 query = list(set(query))
