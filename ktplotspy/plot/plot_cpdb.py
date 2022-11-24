@@ -23,7 +23,7 @@ from plotnine import (
     theme,
     theme_bw,
 )
-from typing import List, Literal, Optional, Union, Tuple
+from typing import List, Literal, Optional, Union, Tuple, Dict
 
 from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT
 from ktplotspy.utils.support import (
@@ -51,6 +51,7 @@ def plot_cpdb(
     keep_significant_only: bool = True,
     genes: Optional[str] = None,
     gene_family: Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]] = None,
+    custom_gene_family: Optional[Dict[str, List[str]]] = None,
     standard_scale: bool = True,
     cmap_name: str = "viridis",
     max_size: int = 8,
@@ -95,6 +96,10 @@ def plot_cpdb(
         If provided, will attempt to plot only interactions containing the specified gene(s).
     gene_family : Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]], optional
         If provided, will attempt to plot a predetermined set of chemokines or genes associated with Th1, Th2, Th17, Treg, costimulatory or coinhibitory molecules.
+    custom_gene_family : Optional[Dict[str, List[str]]], optional
+        If provided, will update the gene_family dictionary with this custom dictionary.
+        Both `gene_family` (name of the custom family) and `custom_gene_family` (dictionary holding this new family)
+        must be specified for this to work.
     standard_scale : bool, optional
         Whether or not to scale the mean interaction values from 0 to 1 per receptor-ligand variable.
     cmap_name : str, optional
