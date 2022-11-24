@@ -208,7 +208,8 @@ def prep_query_group(means: pd.DataFrame, custom_dict: Optional[Dict[str, List[s
         "coinhibitory": coinhibitory,
     }
     if custom_dict is not None:
-        query_dict.update(custom_dict)
+        for k, r in custom_dict.items():
+            query_dict.update({k: [i for i in means.interacting_pair if re.search(r"|".join(r), i)]})
     return query_dict
 
 
