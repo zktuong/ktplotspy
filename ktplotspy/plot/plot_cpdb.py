@@ -152,11 +152,21 @@ def plot_cpdb(
     # check for query
     if genes is None:
         if gene_family is not None:
-            query_group = prep_query_group(means_mat)
-            if gene_family.lower() in query_group:
-                query = query_group[gene_family.lower()]
+            query_group = prep_query_group(means_mat, custom_gene_family)
+            if isinstance(gene_family, list):
+                query = []
+                for gf in gene_family:
+                    if gf.lower() in query_group:
+                        for gfg in query_group[gf.lower()]:
+                            query.apend(gfg)
+                    else:
+                        raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                query = list(set(query))
             else:
-                raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                if gene_family.lower() in query_group:
+                    query = query_group[gene_family.lower()]
+                else:
+                    raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
         else:
             query = [i for i in means_mat.interacting_pair if re.search("", i)]
     elif genes is not None:
@@ -341,5 +351,7 @@ def plot_cpdb(
         if title != "":
             g = g + ggtitle(title)
         elif gene_family is not None:
+            if isinstance(gene_family, list):
+                gene_family = ", ".join(gene_family)
             g = g + ggtitle(gene_family)
         return g
