@@ -30,6 +30,7 @@ pandas= "*"
 numpy = "*"
 plotnine = "*"
 seaborn = "*"
+python-circos = "^0.3.0"
 anndata = {optional = true, version = "^0.7.6"}
 black = {optional = true, version = "*"}
 pytest-cov = {optional = true, version = "*"}
