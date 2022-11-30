@@ -242,7 +242,8 @@ def plot_cpdb(
             if df.at[i, "pvals"] == 0:
                 df.at[i, "pvals"] = 0.001
         if df.at[i, "pvals"] >= alpha:
-            df.at[i, "y_means"] = np.nan
+            if keep_significant_only:
+                df.at[i, "y_means"] = np.nan
     df["x_stroke"] = df["x_means"]
     set_x_stroke(df=df, isnull=False, stroke=0)
     set_x_stroke(df=df, isnull=True, stroke=highlight_size)

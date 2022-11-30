@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 import re
 import matplotlib.pyplot as plt
+
 import numpy as np
 import pandas as pd
 
 from collections import defaultdict
 from itertools import combinations
 from matplotlib.lines import Line2D
+from matplotlib.colors import LinearSegmentedColormap
 from pycircos import Garc, Gcircle
 from typing import Optional, Tuple, Dict, Union
 
@@ -21,20 +23,83 @@ def plot_cpdb_chord(
     pvals: pd.DataFrame,
     deconvoluted: pd.DataFrame,
     celltype_key: str,
+    face_col_dict: Optional[Dict[str, str]] = None,
+    edge_col_dict: Optional[Dict[str, str]] = None,
+    edge_cmap: LinearSegmentedColormap = plt.cm.nipy_spectral,
     remove_self: bool = True,
-    gap: int = 2,
-    scale_line: int = 10,
-    layer: Optional[str] = None,
-    size: int = 50,
-    interspace: int = 2,
+    gap: Union[int, float] = 2,
+    scale_lw: Union[int, float] = 10,
+    size: Union[int, float] = 50,
+    interspace: Union[int, float] = 2,
     raxis_range: Tuple[int, int] = (950, 1000),
-    labelposition: int = 80,
+    labelposition: Union[int, float] = 80,
     label_visible: bool = True,
-    col_dict: Dict[str, str] = None,
     figsize: Tuple[Union[int, float], Union[int, float]] = (8, 8),
-    *args,
+    legend_params: Dict = {"loc": "center left", "bbox_to_anchor": (1, 1), "frameon": False},
+    layer: Optional[str] = None,
     **kwargs
-):
+) -> Gcircle:
+    """Summary
+
+    Parameters
+    ----------
+    adata : AnnData
+        `AnnData` object with the `.obs` storing the `celltype_key` with or without `splitby_key`.
+        The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
+    means : pd.DataFrame
+        Dataframe corresponding to `means.txt` from cellphonedb.
+    pvals : pd.DataFrame
+        Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
+    deconvoluted : pd.DataFrame
+        Dataframe corresponding to `deconvoluted.txt` from cellphonedb.
+    celltype_key : str
+        Column name in `adata.obs` storing the celltype annotations.
+        Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
+    face_col_dict : Optional[Dict[str, str]], optional
+        dictionary of celltype : face colours.
+        If not provided, will try and use `.uns` from `adata` if correct slot is present.
+    edge_col_dict : Optional[Dict[str, str]], optional
+        Dictionary of interactions : edge colours. Otherwise, will use edge_cmap option.
+    edge_cmap : LinearSegmentedColormap, optional
+        a `LinearSegmentedColormap` to generate edge colors.
+    remove_self : bool, optional
+        whether to remove self edges.
+    gap : Union[int, float], optional
+        relative size of gaps between edges on arc.
+    scale_lw : Union[int, float], optional
+        numeric value to scale width of lines.
+    size : Union[int, float], optional
+        Width of the arc section. If record is provided, the value is
+        instead set by the sequence length of the record. In reality
+        the actual arc section width in the resultant circle is determined
+        by the ratio of size to the combined sum of the size and interspace
+        values of the Garc class objects in the Gcircle class object.
+    interspace : Union[int, float], optional
+        Distance angle (deg) to the adjacent arc section in clockwise
+        sequence. The actual interspace size in the circle is determined by
+        the actual arc section width in the resultant circle is determined
+        by the ratio of size to the combined sum of the size and interspace
+        values of the Garc class objects in the Gcircle class object.
+    raxis_range : Tuple[int, int], optional
+        Radial axis range where line plot is drawn.
+    labelposition : Union[int, float], optional
+        Relative label height from the center of the arc section.
+    label_visible : bool, optional
+        Font size of the label. The default is 10.
+    figsize : Tuple[Union[int, float], Union[int, float]], optional
+        size of figure.
+    legend_params : Dict, optional
+        additional arguments for `plt.legend`.
+    layer : Optional[str], optional
+        slot in `AnnData.layers` to access. If `None`, uses `.X`.
+    **kwargs
+        passed to `plot_cpdb`.
+
+    Returns
+    -------
+    Gcircle
+        Description
+    """
     # assert splitby = False
     splitby_key, return_table = None, True
     # run plot_cpdb
@@ -43,10 +108,9 @@ def plot_cpdb_chord(
         means=means,
         pvals=pvals,
         celltype_key=celltype_key,
-        *args,
-        **kwargs,
         return_table=return_table,
-        splitby_key=splitby_key
+        splitby_key=splitby_key,
+        **kwargs,
     )
     # do some name wrangling
     subset_clusters = list(set(flatten([x.split("-") for x in lr_interactions.celltype_group])))
@@ -171,40 +235,50 @@ def plot_cpdb_chord(
     tmpdf["from"] = [celltype_start_dict[x] for x in tmpdf.producer]
     tmpdf["to"] = [celltype_end_dict[x] for x in tmpdf.receiver]
     tmpdf["interaction_value"] = [
-        j * scale_line + interaction_start_dict[x] if pd.notnull(j) else np.nan
+        j * scale_lw + interaction_start_dict[x] if pd.notnull(j) else np.nan
         for j, x in zip(tmpdf.interaction_value, tmpdf.interaction_celltype)
     ]
     tmpdf["start"] = round(tmpdf["interaction_value"] + tmpdf["from"])
     tmpdf["end"] = round(tmpdf["interaction_value"] + tmpdf["to"])
-    if col_dict is None:
+    if edge_col_dict is None:
         uni_interactions = list(set(tmpdf.converted_pair))
-        cmap = plt.cm.nipy_spectral
         col_step = 1 / len(uni_interactions)
         start_step = 0
-        col_dict = {}
+        edge_col_dict = {}
         for i in uni_interactions:
-            col_dict[i] = cmap(start_step)
+            edge_col_dict[i] = edge_cmap(start_step)
             start_step += col_step
     circle = Gcircle(figsize=figsize)
-    circle.set_garcs(-180, 180)
+    if celltype_key + "_colors" in adata.uns:
+        if adata.obs[celltype_key].dtype.name == "category":
+            face_col_dict = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
+        else:
+            face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
     for i, j in tmpdf.iterrows():
         name = j["producer"]
+        col = None if face_col_dict is None else face_col_dict[name]
         arc = Garc(
-            arc_id=name, size=size, interspace=interspace, raxis_range=raxis_range, labelposition=labelposition, label_visible=label_visible
+            arc_id=name,
+            size=size,
+            interspace=interspace,
+            raxis_range=raxis_range,
+            labelposition=labelposition,
+            label_visible=label_visible,
+            facecolor=col,
         )
         circle.add_garc(arc)
     circle.set_garcs(-180, 180)
     for i, j in tmpdf.iterrows():
         if pd.notnull(j["interaction_value"]):
             lr = j["converted_pair"]
-            start_size = j["start"] + j["interaction_value"] / scale_line
-            end_size = j["end"] + j["interaction_value"] / scale_line
+            start_size = j["start"] + j["interaction_value"] / scale_lw
+            end_size = j["end"] + j["interaction_value"] / scale_lw
             start_size = 1 if start_size < 1 else start_size
             end_size = 1 if end_size < 1 else end_size
             source = (j["producer"], j["start"] - 1, start_size, raxis_range[0] - size)
             destination = (j["receiver"], j["end"] - 1, end_size, raxis_range[0] - size)
-            circle.chord_plot(source, destination, col_dict[lr])
+            circle.chord_plot(source, destination, edge_col_dict[lr])
 
-    custom_lines = [Line2D([0], [0], color=val, lw=4) for val in col_dict.values()]
-    circle.figure.legend(custom_lines, col_dict.keys(), frameon=False)
+    custom_lines = [Line2D([0], [0], color=val, lw=4) for val in edge_col_dict.values()]
+    circle.figure.legend(custom_lines, edge_col_dict.keys(), **legend_params)
     return circle
