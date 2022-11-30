@@ -614,7 +614,6 @@ def generate_df(
     cell_type_grid: pd.DataFrame,
     cell_type_means: pd.DataFrame,
     cell_type_fractions: pd.DataFrame,
-    keep_barcodes: List[str],
     sep: str = DEFAULT_SEP,
 ) -> pd.DataFrame:
     """Generate final dataframe for doing plotting.
@@ -629,8 +628,6 @@ def generate_df(
         expression dataframe.
     cell_type_fractions : pd.DataFrame
         fraction dataframe.
-    keep_barcodes : List[str]
-        barcodes found in the output of `plot_cpdb`.
     sep : str, optional
         separator used for making barcodes.
 
@@ -764,7 +761,6 @@ def generate_df(
     _df["to"] = [r + sep + rr for r, rr in zip(_df.receiver, _df.receptor)]
     _df["barcode"] = [pr + "-" + rr + sep + cp for pr, rr, cp in zip(_df.producer, _df.receiver, _df.converted_pair)]
     _df = _df.reset_index(drop=True)
-    # _df = _df[_df.barcode.isin(keep_barcodes)].copy()
     for i, j in _df.iterrows():
         if (j["receptor_b"]) and not (j["receptor_a"]):
             lg, rc = j["receptor"], j["ligand"]

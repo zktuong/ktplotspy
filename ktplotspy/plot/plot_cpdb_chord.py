@@ -118,9 +118,7 @@ def plot_cpdb_chord(
     interactions = means[["interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]].copy()
     interactions["converted"] = [re.sub("-", " ", x) for x in interactions.interacting_pair]
     interactions["converted"] = [re.sub("_", "-", x) for x in interactions.interacting_pair]
-    barcodes = lr_interactions["barcode"] = [
-        a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)
-    ]
+    lr_interactions["barcode"] = [a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)]
     interactions_subset = interactions[interactions["converted"].isin(list(lr_interactions.interaction_group))].copy()
     # handle complexes gently
     tm0 = {kx: rx.split("_") for kx, rx in interactions_subset.interacting_pair.items()}
@@ -215,7 +213,6 @@ def plot_cpdb_chord(
         cell_type_grid=cell_type_grid,
         cell_type_means=expr_df,
         cell_type_fractions=fraction_df,
-        keep_barcodes=barcodes,
         sep=DEFAULT_SEP,
     )
     # ok form the table for pyCircos
