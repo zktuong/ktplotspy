@@ -249,11 +249,12 @@ def plot_cpdb_chord(
             edge_col_dict[i] = edge_cmap(start_step)
             start_step += col_step
     circle = Gcircle(figsize=figsize)
-    if celltype_key + "_colors" in adata.uns:
-        if adata.obs[celltype_key].dtype.name == "category":
-            face_col_dict = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
-        else:
-            face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
+    if face_col_dict is None:
+        if celltype_key + "_colors" in adata.uns:
+            if adata.obs[celltype_key].dtype.name == "category":
+                face_col_dict = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
+            else:
+                face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
     for i, j in tmpdf.iterrows():
         name = j["producer"]
         col = None if face_col_dict is None else face_col_dict[name]
