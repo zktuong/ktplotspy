@@ -153,7 +153,7 @@ def plot_cpdb_chord(
     )
     # ok form the table for pyCircos
     int_value = dict(zip(lr_interactions.barcode, lr_interactions.y_means))
-    # dfx["interaction_value"] = [int_value[y] if y in int_value else np.nan for y in dfx["barcode"]]
+    dfx["interaction_value"] = [int_value[y] if y in int_value else np.nan for y in dfx["barcode"]]
     tmpdf = dfx[["producer", "receiver", "converted_pair", "interaction_value"]].copy()
     tmpdf["interaction_celltype"] = [
         DEFAULT_SEP.join(sorted([a, b, c])) for a, b, c in zip(tmpdf.producer, tmpdf.receiver, tmpdf.converted_pair)
