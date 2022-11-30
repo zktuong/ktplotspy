@@ -26,6 +26,23 @@ def test_plot_cpdb_chord(mock_show, adata, means, pvals, decon):
 
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata", "means", "pvals", "decon")
+def test_plot_cpdb_chord_self(mock_show, adata, means, pvals, decon):
+    g = plot_cpdb_chord(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2=".",
+        means=means,
+        pvals=pvals,
+        deconvoluted=decon,
+        celltype_key="celltype",
+        remove_self=False,
+        genes=["PTPRC", "TNFSF13", "BMPR2"],
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "means", "pvals", "decon")
 def test_plot_cpdb_complex(mock_show, adata, means, pvals, decon):
     g = plot_cpdb_chord(
         adata=adata,
