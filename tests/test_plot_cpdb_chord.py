@@ -142,7 +142,7 @@ def test_plot_cpdb_chord_adata_layer1(mock_show, adata, means, pvals, decon):
         deconvoluted=decon,
         celltype_key="celltype",
         genes=["PTPRC", "TNFSF13", "BMPR2"],
-        layers="test",
+        layer="test",
     )
     g
 
@@ -160,6 +160,6 @@ def test_plot_cpdb_chord_adata_layer2(mock_show, adata, means, pvals, decon):
         deconvoluted=decon,
         celltype_key="celltype",
         genes=["PTPRC", "TNFSF13", "BMPR2"],
-        layers="test",
+        layer="test",
     )
     g
