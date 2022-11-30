@@ -251,6 +251,7 @@ def plot_cpdb(
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
     df["neglog10p"] = abs(-1 * np.log10(df.pvals))
+    df["neglog10p"] = [0 if x >= 0.05 else j for x, j in zip(df["pvals"], df["neglog10p"])]
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
