@@ -135,13 +135,16 @@ def plot_cpdb_chord(
 
     # create edge list
     cells_test = list(set(meta[celltype_key]))
-    if remove_self:
-        cell_type_grid = pd.DataFrame({c: [[cc for cc in cells_test if cc != c]] for c in cells_test}).T
-    else:
-        cell_type_grid = pd.DataFrame({c: [cells_test] for c in cells_test}).T
-    cell_type_grid[0] = cell_type_grid[0].apply(set)
-    cell_type_grid = pd.DataFrame(data=list(combinations(cell_type_grid.index.tolist(), 2)), columns=["source", "target"])
-
+    cell_comb = []
+    for c1 in cells_test:
+        for c2 in cells_test:
+            if remove_self:
+                if c1 != c2:
+                    cell_comb.append((c1, c2))
+            else:
+                cell_comb.append((c1, c2))
+    cell_comb = list(set(cell_comb))
+    cell_type_grid = pd.DataFrame(cell_comb, columns=["source", "target"])
     # create the final dataframe for plotting
     dfx = generate_df(
         interactions_subset=interactions_subset,
@@ -153,6 +156,7 @@ def plot_cpdb_chord(
     )
     # ok form the table for pyCircos
     int_value = dict(zip(lr_interactions.barcode, lr_interactions.y_means))
+    int_value = {k: r for k, r in int_value.items() if pd.notnull(r)}
     dfx["interaction_value"] = [int_value[y] if y in int_value else np.nan for y in dfx["barcode"]]
     tmpdf = dfx[["producer", "receiver", "converted_pair", "interaction_value"]].copy()
     tmpdf["interaction_celltype"] = [
@@ -167,7 +171,7 @@ def plot_cpdb_chord(
     tmpdf["from"] = [celltype_start_dict[x] for x in tmpdf.producer]
     tmpdf["to"] = [celltype_end_dict[x] for x in tmpdf.receiver]
     tmpdf["interaction_value"] = [
-        j * scale_line + interaction_start_dict[x] if pd.notnull(j) else None
+        j * scale_line + interaction_start_dict[x] if pd.notnull(j) else np.nan
         for j, x in zip(tmpdf.interaction_value, tmpdf.interaction_celltype)
     ]
     tmpdf["start"] = round(tmpdf["interaction_value"] + tmpdf["from"])
@@ -203,4 +207,4 @@ def plot_cpdb_chord(
 
     custom_lines = [Line2D([0], [0], color=val, lw=4) for val in col_dict.values()]
     circle.figure.legend(custom_lines, col_dict.keys(), frameon=False)
-    return circle, dfx
+    return circle
