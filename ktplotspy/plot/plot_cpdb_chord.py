@@ -39,7 +39,7 @@ def plot_cpdb_chord(
     layer: Optional[str] = None,
     **kwargs
 ) -> Gcircle:
-    """Summary
+    """Plotting cellphonedb results as a chord diagram.
 
     Parameters
     ----------
@@ -98,7 +98,7 @@ def plot_cpdb_chord(
     Returns
     -------
     Gcircle
-        Description
+        a `Gcircle` object from `pycircos`.
     """
     # assert splitby = False
     splitby_key, return_table = None, True

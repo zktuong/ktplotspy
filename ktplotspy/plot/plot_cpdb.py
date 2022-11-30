@@ -66,7 +66,7 @@ def plot_cpdb(
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
 ) -> Union[ggplot, pd.DataFrame]:
-    """Plotting cellphonedb results.
+    """Plotting cellphonedb results as a dot plot.
 
     Parameters
     ----------
