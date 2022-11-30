@@ -235,11 +235,14 @@ def plot_cpdb(
         if df.at[i, colm] == 0:
             df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
+    df["y_means"] = df[colm]
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
             if df.at[i, "pvals"] == 0:
                 df.at[i, "pvals"] = 0.001
+        if df.at[i, "pvals"] >= alpha:
+            df.at[i, "y_means"] = np.nan
     df["x_stroke"] = df["x_means"]
     set_x_stroke(df=df, isnull=False, stroke=0)
     set_x_stroke(df=df, isnull=True, stroke=highlight_size)
