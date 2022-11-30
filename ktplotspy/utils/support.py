@@ -543,10 +543,10 @@ def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
         else:  # assume it's numpy array
             return np.mean(adata.X, axis=0)
     else:
-        if isinstance(adata.layer[layer], csr_matrix):
-            return np.mean(adata.layer[layer].toarray(), axis=0)
+        if isinstance(adata.layers[layer], csr_matrix):
+            return np.mean(adata.layers[layer].toarray(), axis=0)
         else:
-            return np.mean(adata.layer[layer], axis=0)
+            return np.mean(adata.layers[layer], axis=0)
 
 
 def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
@@ -570,10 +570,10 @@ def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarr
         else:  # assume it's numpy array
             return np.mean(adata.X > 0, axis=0)
     else:
-        if isinstance(adata.layer[layer], csr_matrix):
-            return np.mean(adata.layer[layer].toarray() > 0, axis=0)
+        if isinstance(adata.layers[layer], csr_matrix):
+            return np.mean(adata.layers[layer].toarray() > 0, axis=0)
         else:
-            return np.mean(adata.layer[layer] > 0, axis=0)
+            return np.mean(adata.layers[layer] > 0, axis=0)
 
 
 def present(x) -> bool:
