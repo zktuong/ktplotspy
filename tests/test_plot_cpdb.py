@@ -133,6 +133,21 @@ def test_plot_cpdb_family(mock_show, adata, means, pvals):
     g
 
 
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "means", "pvals")
+def test_plot_cpdb_two_families(mock_show, adata, means, pvals):
+    g = plot_cpdb(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2="CD4T cell",
+        means=means,
+        pvals=pvals,
+        celltype_key="celltype",
+        gene_family=["chemokines", "Th1"],
+    )
+    g
+
+
 @pytest.mark.usefixtures("adata", "means", "pvals")
 def test_plot_cpdb_wrong_family(adata, means, pvals):
     with pytest.raises(KeyError):
@@ -144,6 +159,21 @@ def test_plot_cpdb_wrong_family(adata, means, pvals):
             pvals=pvals,
             celltype_key="celltype",
             gene_family="haha",
+        )
+
+
+@pytest.mark.usefixtures("adata", "means", "pvals")
+def test_plot_cpdb_two_families_but_wrong(adata, means, pvals):
+    with pytest.raises(KeyError):
+        plot_cpdb(
+            adata=adata,
+            cell_type1="B cell",
+            cell_type2="CD4T cell",
+            means=means,
+            pvals=pvals,
+            celltype_key="celltype",
+            gene_family=["chemokines", "custombad!"],
+            custom_gene_family={"custom_family": ["CXCL13", "CD274", "CXCR5"]},
         )
 
 
@@ -160,6 +190,20 @@ def test_plot_cpdb_both_gene_and_family(adata, means, pvals):
             gene_family="chemokines",
             genes=["CXCL13", "CD274", "CXCR5"],
         )
+
+
+@pytest.mark.usefixtures("adata", "means", "pvals")
+def test_plot_cpdb_custom_family(adata, means, pvals):
+    plot_cpdb(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2="CD4T cell",
+        means=means,
+        pvals=pvals,
+        celltype_key="celltype",
+        gene_family="custom_family",
+        custom_gene_family={"custom_family": ["CXCL13", "CD274", "CXCR5"]},
+    )
 
 
 @patch("matplotlib.pyplot.show")

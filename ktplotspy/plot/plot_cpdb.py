@@ -23,7 +23,7 @@ from plotnine import (
     theme,
     theme_bw,
 )
-from typing import List, Literal, Optional, Union, Tuple
+from typing import List, Literal, Optional, Union, Tuple, Dict
 
 from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT
 from ktplotspy.utils.support import (
@@ -51,7 +51,9 @@ def plot_cpdb(
     keep_significant_only: bool = True,
     genes: Optional[str] = None,
     gene_family: Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]] = None,
+    custom_gene_family: Optional[Dict[str, List[str]]] = None,
     standard_scale: bool = True,
+    cluster_rows: bool = True,
     cmap_name: str = "viridis",
     max_size: int = 8,
     max_highlight_size: int = 3,
@@ -95,8 +97,14 @@ def plot_cpdb(
         If provided, will attempt to plot only interactions containing the specified gene(s).
     gene_family : Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]], optional
         If provided, will attempt to plot a predetermined set of chemokines or genes associated with Th1, Th2, Th17, Treg, costimulatory or coinhibitory molecules.
+    custom_gene_family : Optional[Dict[str, List[str]]], optional
+        If provided, will update the gene_family dictionary with this custom dictionary.
+        Both `gene_family` (name of the custom family) and `custom_gene_family` (dictionary holding this new family)
+        must be specified for this to work.
     standard_scale : bool, optional
         Whether or not to scale the mean interaction values from 0 to 1 per receptor-ligand variable.
+    cluster_rows : bool, optional
+        Whether or not to cluster the rows (interactions).
     cmap_name : str, optional
         Matplotlib built-in colormap names.
     max_size : int, optional
@@ -147,11 +155,21 @@ def plot_cpdb(
     # check for query
     if genes is None:
         if gene_family is not None:
-            query_group = prep_query_group(means_mat)
-            if gene_family.lower() in query_group:
-                query = query_group[gene_family.lower()]
+            query_group = prep_query_group(means_mat, custom_gene_family)
+            if isinstance(gene_family, list):
+                query = []
+                for gf in gene_family:
+                    if gf.lower() in query_group:
+                        for gfg in query_group[gf.lower()]:
+                            query.append(gfg)
+                    else:
+                        raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                query = list(set(query))
             else:
-                raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                if gene_family.lower() in query_group:
+                    query = query_group[gene_family.lower()]
+                else:
+                    raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
         else:
             query = [i for i in means_mat.interacting_pair if re.search("", i)]
     elif genes is not None:
@@ -213,10 +231,11 @@ def plot_cpdb(
             pvals_matx = pvals_matx.loc[keep_rows]
             means_matx = means_matx.loc[keep_rows]
     # reun hierarchical clustering on the rows based on interaction value.
-    if means_matx.shape[0] > 2:
-        h_order = hclust(means_matx, axis=0)
-        means_matx = means_matx.loc[h_order]
-        pvals_matx = pvals_matx.loc[h_order]
+    if cluster_rows:
+        if means_matx.shape[0] > 2:
+            h_order = hclust(means_matx, axis=0)
+            means_matx = means_matx.loc[h_order]
+            pvals_matx = pvals_matx.loc[h_order]
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
@@ -341,5 +360,7 @@ def plot_cpdb(
         if title != "":
             g = g + ggtitle(title)
         elif gene_family is not None:
+            if isinstance(gene_family, list):
+                gene_family = ", ".join(gene_family)
             g = g + ggtitle(gene_family)
         return g
