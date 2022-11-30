@@ -6,7 +6,7 @@ import scipy.cluster.hierarchy as shc
 
 try:
     from collections.abc import Iterable
-except ImportError:
+except ImportError:  # pragma: no cover
     from collections import Iterable
 from collections import Counter
 from itertools import count, tee
@@ -56,13 +56,13 @@ def hclust(data: pd.DataFrame, axis: int = 0) -> List:
     """
     if data.shape[axis] > 1:
         # TODO (KT): perhaps can pass a kwargs so that linkage can be adjusted?
-        if axis == 1:
+        if axis == 1:  # pragma: no cover
             data = data.T
         labels = list(data.index)
         data_clusters = shc.linkage(data, method="average", metric="euclidean")
         data_dendrogram = shc.dendrogram(Z=data_clusters, no_plot=True, labels=labels)
         data_order = data_dendrogram["ivl"]
-    else:
+    else:  # pragma: no cover
         if axis == 1:
             labels = data.columns
         else:
@@ -410,7 +410,7 @@ def rgb_to_hex(rgb: List) -> str:
     """
     # Components need to be integers for hex to make sense
     if len(rgb) == 4:
-        rgb = [int(x) for x in rgb[:3]]
+        rgb = [int(x) for x in rgb[:3]]  # pragma: no cover
     else:
         rgb = [int(x) for x in rgb]
     return "#" + "".join(["0{0:x}".format(v) if v < 16 else "{0:x}".format(v) for v in rgb])
@@ -541,7 +541,7 @@ def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
         if isinstance(adata.X, csr_matrix):
             return np.mean(adata.X.toarray(), axis=0)
         else:  # assume it's numpy array
-            return np.mean(adata.X, axis=0)
+            return np.mean(adata.X, axis=0)  # pragma: no cover
     else:
         if isinstance(adata.layers[layer], csr_matrix):
             return np.mean(adata.layers[layer].toarray(), axis=0)
@@ -568,7 +568,7 @@ def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarr
         if isinstance(adata.X, csr_matrix):
             return np.mean(adata.X.toarray() > 0, axis=0)
         else:  # assume it's numpy array
-            return np.mean(adata.X > 0, axis=0)
+            return np.mean(adata.X > 0, axis=0)  # pragma: no cover
     else:
         if isinstance(adata.layers[layer], csr_matrix):
             return np.mean(adata.layers[layer].toarray() > 0, axis=0)
@@ -602,9 +602,9 @@ def find_complex(interaction_df: pd.DataFrame) -> List[str]:
         if len(complexb) > 0:
             return complexa + complexb
         else:
-            return complexa
+            return complexa  # pragma: no cover
     elif len(complexb) > 0:
-        return complexb
+        return complexb  # pragma: no cover
     else:
         return []
 
@@ -649,7 +649,7 @@ def generate_df(
             if any([re.search("^" + j + "$", x) for x in cell_type_means.index]):
                 producer_expression.loc[j, i] = cell_type_means.loc[j, i]
                 producer_fraction.loc[j, i] = cell_type_fractions.loc[j, i]
-            else:
+            else:  # pragma: no cover
                 producer_expression.loc[j, i] = 0
                 producer_fraction.loc[j, i] = 0
     for i in rc:
@@ -657,7 +657,7 @@ def generate_df(
             if any([re.search("^" + j + "$", x) for x in cell_type_means.index]):
                 receiver_expression.loc[j, i] = cell_type_means.loc[j, i]
                 receiver_fraction.loc[j, i] = cell_type_fractions.loc[j, i]
-            else:
+            else:  # pragma: no cover
                 receiver_expression.loc[j, i] = 0
                 receiver_fraction.loc[j, i] = 0
     out = []
@@ -721,7 +721,7 @@ def generate_df(
                         receiver_expression.loc[ib, rx],
                         receiver_fraction.loc[ib, rx],
                     ]
-                else:
+                else:  # pragma: no cover
                     _out = [
                         ia,
                         ib,
