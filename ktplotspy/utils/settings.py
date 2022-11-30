@@ -3,7 +3,7 @@ import pkg_resources
 
 try:
     __version__ = pkg_resources.get_distribution("ktplotspy").version
-except:
+except:  # pragma: no cover
     __version__ = "dev"
 
 DEFAULT_SEP = ">@<"

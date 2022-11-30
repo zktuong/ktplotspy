@@ -24,6 +24,11 @@ def pvals():
 
 
 @pytest.fixture
+def decon():
+    return pd.read_csv(DATAPATH / "out" / "deconvoluted.txt", sep="\t")
+
+
+@pytest.fixture
 def means_split():
     return pd.read_csv(DATAPATH / "out_split" / "means.txt", sep="\t")
 
@@ -31,3 +36,8 @@ def means_split():
 @pytest.fixture
 def pvals_split():
     return pd.read_csv(DATAPATH / "out_split" / "pvalues.txt", sep="\t")
+
+
+@pytest.fixture
+def decon_split():
+    return pd.read_csv(DATAPATH / "out_split" / "deconvoluted.txt", sep="\t")

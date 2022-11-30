@@ -4,10 +4,16 @@ import pandas as pd
 import re
 import scipy.cluster.hierarchy as shc
 
+try:
+    from collections.abc import Iterable
+except ImportError:  # pragma: no cover
+    from collections import Iterable
 from collections import Counter
 from itertools import count, tee
 from matplotlib.colors import ListedColormap
+from scipy.sparse import csr_matrix
 from typing import Dict, List, Optional
+
 
 from ktplotspy.utils.settings import DEFAULT_SEP
 
@@ -50,13 +56,13 @@ def hclust(data: pd.DataFrame, axis: int = 0) -> List:
     """
     if data.shape[axis] > 1:
         # TODO (KT): perhaps can pass a kwargs so that linkage can be adjusted?
-        if axis == 1:
+        if axis == 1:  # pragma: no cover
             data = data.T
         labels = list(data.index)
         data_clusters = shc.linkage(data, method="average", metric="euclidean")
         data_dendrogram = shc.dendrogram(Z=data_clusters, no_plot=True, labels=labels)
         data_order = data_dendrogram["ivl"]
-    else:
+    else:  # pragma: no cover
         if axis == 1:
             labels = data.columns
         else:
@@ -404,7 +410,7 @@ def rgb_to_hex(rgb: List) -> str:
     """
     # Components need to be integers for hex to make sense
     if len(rgb) == 4:
-        rgb = [int(x) for x in rgb[:3]]
+        rgb = [int(x) for x in rgb[:3]]  # pragma: no cover
     else:
         rgb = [int(x) for x in rgb]
     return "#" + "".join(["0{0:x}".format(v) if v < 16 else "{0:x}".format(v) for v in rgb])
@@ -493,3 +499,288 @@ def diverging_palette(low: str, medium: str, high: str, n: int = 4096) -> Listed
     )
 
     return newcmp
+
+
+def flatten(l: List[List]) -> List:
+    """
+    Flatten a list-in-list-in-list.
+
+    Parameters
+    ----------
+    l : List[List]
+        a list-in-list list
+
+    Yields
+    ------
+    List
+        a flattened list.
+    """
+    for el in l:
+        if isinstance(el, Iterable) and not isinstance(el, (str, bytes)):
+            yield from flatten(el)
+        else:
+            yield el
+
+
+def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
+    """Compute mean of gene expression.
+
+    Parameters
+    ----------
+    adata : AnnData
+        input `AnnData` object.
+    layer : Optional[str], optional
+        if left as None, will use `.X`.
+
+    Returns
+    -------
+    np.ndarray
+        mean expression.
+    """
+    if layer is None:
+        if isinstance(adata.X, csr_matrix):
+            return np.mean(adata.X.toarray(), axis=0)
+        else:  # assume it's numpy array
+            return np.mean(adata.X, axis=0)  # pragma: no cover
+    else:
+        if isinstance(adata.layers[layer], csr_matrix):
+            return np.mean(adata.layers[layer].toarray(), axis=0)
+        else:
+            return np.mean(adata.layers[layer], axis=0)
+
+
+def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
+    """Compute non-zeor expression fraction
+
+    Parameters
+    ----------
+    adata : AnnData
+        input `AnnData` object.
+    layer : Optional[str], optional
+        if left as None, will use `.X`.
+
+    Returns
+    -------
+    np.ndarray
+        non-zero expression fraction
+    """
+    if layer is None:
+        if isinstance(adata.X, csr_matrix):
+            return np.mean(adata.X.toarray() > 0, axis=0)
+        else:  # assume it's numpy array
+            return np.mean(adata.X > 0, axis=0)  # pragma: no cover
+    else:
+        if isinstance(adata.layers[layer], csr_matrix):
+            return np.mean(adata.layers[layer].toarray() > 0, axis=0)
+        else:
+            return np.mean(adata.layers[layer] > 0, axis=0)
+
+
+def present(x) -> bool:
+    """Utility function to check if x is not null or blank."""
+    return pd.notnull(x) and x != ""
+
+
+def find_complex(interaction_df: pd.DataFrame) -> List[str]:
+    """Return complexes.
+
+    Parameters
+    ----------
+    interaction_df : pd.DataFrame
+        processed mean table.
+
+    Returns
+    -------
+    List[str]
+        list of complexes.
+    """
+    idxa = [i for i, j in interaction_df.gene_a.items() if not present(j)]
+    idxb = [i for i, j in interaction_df.gene_b.items() if not present(j)]
+    complexa = [re.sub("complex:", "", x) for x in interaction_df.loc[idxa, "partner_a"]]
+    complexb = [re.sub("complex:", "", x) for x in interaction_df.loc[idxb, "partner_b"]]
+    if len(complexa) > 0:
+        if len(complexb) > 0:
+            return complexa + complexb
+        else:
+            return complexa  # pragma: no cover
+    elif len(complexb) > 0:
+        return complexb  # pragma: no cover
+    else:
+        return []
+
+
+def generate_df(
+    interactions_subset: pd.DataFrame,
+    cell_type_grid: pd.DataFrame,
+    cell_type_means: pd.DataFrame,
+    cell_type_fractions: pd.DataFrame,
+    sep: str = DEFAULT_SEP,
+) -> pd.DataFrame:
+    """Generate final dataframe for doing plotting.
+
+    Parameters
+    ----------
+    interactions_subset : pd.DataFrame
+        processed mean table.
+    cell_type_grid : pd.DataFrame
+        basicall an edge list/table.
+    cell_type_means : pd.DataFrame
+        expression dataframe.
+    cell_type_fractions : pd.DataFrame
+        fraction dataframe.
+    sep : str, optional
+        separator used for making barcodes.
+
+    Returns
+    -------
+    pd.DataFrame
+        final dataframe use for plotting.
+    """
+    ligand = list(interactions_subset.id_a)
+    receptor = list(interactions_subset.id_b)
+    pp = list(cell_type_grid.source)
+    rc = list(cell_type_grid.target)
+    producer_expression = pd.DataFrame(columns=list(set(pp)))
+    producer_fraction = pd.DataFrame(columns=list(set(pp)))
+    receiver_expression = pd.DataFrame(columns=list(set(rc)))
+    receiver_fraction = pd.DataFrame(columns=list(set(rc)))
+    for i in pp:
+        for j in ligand:
+            if any([re.search("^" + j + "$", x) for x in cell_type_means.index]):
+                producer_expression.loc[j, i] = cell_type_means.loc[j, i]
+                producer_fraction.loc[j, i] = cell_type_fractions.loc[j, i]
+            else:  # pragma: no cover
+                producer_expression.loc[j, i] = 0
+                producer_fraction.loc[j, i] = 0
+    for i in rc:
+        for j in receptor:
+            if any([re.search("^" + j + "$", x) for x in cell_type_means.index]):
+                receiver_expression.loc[j, i] = cell_type_means.loc[j, i]
+                receiver_fraction.loc[j, i] = cell_type_fractions.loc[j, i]
+            else:  # pragma: no cover
+                receiver_expression.loc[j, i] = 0
+                receiver_fraction.loc[j, i] = 0
+    out = []
+    for _, (px, rx) in cell_type_grid.iterrows():
+        for _, (
+            ip,
+            ga,
+            gb,
+            pa,
+            pb,
+            ra,
+            rb,
+            cp,
+            ia,
+            ib,
+        ) in interactions_subset.iterrows():
+            if ra:
+                if rb:
+                    _out = [
+                        ia,
+                        ib,
+                        ra,
+                        rb,
+                        ip,
+                        cp,
+                        px,
+                        rx,
+                        producer_expression.loc[ia, px],
+                        producer_fraction.loc[ia, px],
+                        receiver_expression.loc[ib, rx],
+                        receiver_fraction.loc[ib, rx],
+                    ]
+                else:
+                    _out = [
+                        ia,
+                        ib,
+                        ra,
+                        rb,
+                        ip,
+                        cp,
+                        px,
+                        rx,
+                        producer_expression.loc[ia, px],
+                        producer_fraction.loc[ia, px],
+                        receiver_expression.loc[ib, rx],
+                        receiver_fraction.loc[ib, rx],
+                    ]
+            else:
+                if rb:
+                    _out = [
+                        ia,
+                        ib,
+                        ra,
+                        rb,
+                        ip,
+                        cp,
+                        px,
+                        rx,
+                        producer_expression.loc[ia, px],
+                        producer_fraction.loc[ia, px],
+                        receiver_expression.loc[ib, rx],
+                        receiver_fraction.loc[ib, rx],
+                    ]
+                else:  # pragma: no cover
+                    _out = [
+                        ia,
+                        ib,
+                        ra,
+                        rb,
+                        ip,
+                        cp,
+                        px,
+                        rx,
+                        producer_expression.loc[ia, px],
+                        producer_fraction.loc[ia, px],
+                        receiver_expression.loc[ib, rx],
+                        receiver_fraction.loc[ib, rx],
+                    ]
+            out.append(
+                pd.DataFrame(
+                    _out,
+                    index=[
+                        "ligand",
+                        "receptor",
+                        "receptor_a",
+                        "receptor_b",
+                        "pair",
+                        "converted_pair",
+                        "producer",
+                        "receiver",
+                        "producer_expression",
+                        "producer_fraction",
+                        "receiver_expression",
+                        "receiver_fraction",
+                    ],
+                ).T
+            )
+
+    _df = pd.concat(out)
+    _df["from"] = [p + sep + l for p, l in zip(_df.producer, _df.ligand)]
+    _df["to"] = [r + sep + rr for r, rr in zip(_df.receiver, _df.receptor)]
+    _df["barcode"] = [pr + "-" + rr + sep + cp for pr, rr, cp in zip(_df.producer, _df.receiver, _df.converted_pair)]
+    _df = _df.reset_index(drop=True)
+    for i, j in _df.iterrows():
+        if (j["receptor_b"]) and not (j["receptor_a"]):
+            lg, rc = j["receptor"], j["ligand"]
+            con_pair = lg + "-" + rc
+            ra, rb = j["receptor_b"], j["receptor_a"]
+            px, rx = j["receiver"], j["producer"]
+            pre, prf = j["receiver_expression"], j["receiver_fraction"]
+            rce, rcf = j["producer_expression"], j["producer_fraction"]
+            tos, frs = j["from"], j["to"]
+            _df.at[i, "ligand"] = lg
+            _df.at[i, "receptor"] = rc
+            _df.at[i, "converted_pair"] = con_pair
+            _df.at[i, "receptor_a"] = ra
+            _df.at[i, "receptor_b"] = rb
+            _df.at[i, "producer"] = px
+            _df.at[i, "receiver"] = rx
+            _df.at[i, "producer_expression"] = pre
+            _df.at[i, "producer_fraction"] = prf
+            _df.at[i, "receiver_expression"] = rce
+            _df.at[i, "receiver_fraction"] = rcf
+            _df.at[i, "from"] = frs
+            _df.at[i, "to"] = tos
+    return _df

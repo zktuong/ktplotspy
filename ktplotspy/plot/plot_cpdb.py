@@ -66,7 +66,7 @@ def plot_cpdb(
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
 ) -> Union[ggplot, pd.DataFrame]:
-    """Plotting cellphonedb results.
+    """Plotting cellphonedb results as a dot plot.
 
     Parameters
     ----------
@@ -254,11 +254,15 @@ def plot_cpdb(
         if df.at[i, colm] == 0:
             df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
+    df["y_means"] = df[colm]
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
             if df.at[i, "pvals"] == 0:
                 df.at[i, "pvals"] = 0.001
+        if df.at[i, "pvals"] >= alpha:
+            if keep_significant_only:
+                df.at[i, "y_means"] = np.nan
     df["x_stroke"] = df["x_means"]
     set_x_stroke(df=df, isnull=False, stroke=0)
     set_x_stroke(df=df, isnull=True, stroke=highlight_size)
@@ -267,6 +271,7 @@ def plot_cpdb(
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
     df["neglog10p"] = abs(-1 * np.log10(df.pvals))
+    df["neglog10p"] = [0 if x >= 0.05 else j for x, j in zip(df["pvals"], df["neglog10p"])]
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
