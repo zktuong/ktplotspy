@@ -91,7 +91,9 @@ def plot_cpdb_heatmap(
         count_mat = count_final.pivot_table(index="SOURCE", columns="TARGET", values="COUNT")
         count_mat.columns.name, count_mat.index.name = None, None
         count_mat[pd.isnull(count_mat)] = 0
-        all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"])
+        all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
+            count_mat.apply(sum, axis=1), columns=["total_interactions"]
+        )
     if log1p_transform:
         count_mat = np.log1p(count_mat)
     if cmap is None:
