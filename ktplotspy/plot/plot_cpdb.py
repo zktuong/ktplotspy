@@ -143,6 +143,7 @@ def plot_cpdb(
     """
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
+    swapr = True if (cell_type1 == ".") or (cell_type2 == ".") else False
     # prepare data
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
@@ -208,7 +209,10 @@ def plot_cpdb(
         )
     cell_type = "|".join(celltype)
     # keep cell types
-    ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
+    if swapr:
+        ct_columns = [ct for ct in means_mat.columns if re.search(ct, cell_type)]
+    else:
+        ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
     # filter
     means_matx = filter_interaction_and_celltype(data=means_mat, genes=query, celltype_pairs=ct_columns)
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
