@@ -100,7 +100,7 @@ def plot_cpdb_heatmap(
             count_matx.columns = count_mat.columns
             count_matx.index = count_mat.index
             count_mat = count_matx.copy()
-            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) 
+            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"])
         else:
             all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
                 count_mat.apply(sum, axis=1), columns=["total_interactions"]
