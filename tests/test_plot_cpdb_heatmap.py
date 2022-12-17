@@ -43,7 +43,7 @@ def test_plot_cpdb_heatmap_sym(mock_show, adata, pvals):
         adata=adata,
         pvals=pvals,
         celltype_key="celltype",
-        symmetrical=False,
+        symmetrical=True,
     )
     g
 
