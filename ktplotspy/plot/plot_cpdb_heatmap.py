@@ -25,6 +25,7 @@ def plot_cpdb_heatmap(
     cmap: Optional[Union[str, ListedColormap]] = None,
     title: str = "",
     return_tables: bool = False,
+    symmetrical: bool = True,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
     """Plot cellphonedb results as total counts of interactions.
@@ -63,6 +64,8 @@ def plot_cpdb_heatmap(
         Plot title.
     return_tables : bool, optional
         Whether to return the dataframes storing the interaction network.
+    symmetrical : bool, optional
+        Whether to return the sum of interactions as symmetrical heatmap.
     **kwargs
         Passed to seaborn.clustermap.
 
@@ -91,9 +94,13 @@ def plot_cpdb_heatmap(
         count_mat = count_final.pivot_table(index="SOURCE", columns="TARGET", values="COUNT")
         count_mat.columns.name, count_mat.index.name = None, None
         count_mat[pd.isnull(count_mat)] = 0
-        all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
-            count_mat.apply(sum, axis=1), columns=["total_interactions"]
-        )
+        if symmetrical:
+            count_mat = np.triu(count_mat) + np.tril(count_mat.T) + np.tril(count_mat) + np.triu(count_mat.T)
+            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) 
+        else:
+            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
+                count_mat.apply(sum, axis=1), columns=["total_interactions"]
+            )
     if log1p_transform:
         count_mat = np.log1p(count_mat)
     if cmap is None:
