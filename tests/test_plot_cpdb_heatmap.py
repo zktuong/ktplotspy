@@ -38,6 +38,18 @@ def test_plot_cpdb_heatmap_log(mock_show, adata, pvals):
 
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata", "pvals")
+def test_plot_cpdb_heatmap_sym(mock_show, adata, pvals):
+    g = plot_cpdb_heatmap(
+        adata=adata,
+        pvals=pvals,
+        celltype_key="celltype",
+        symmetrical=True,
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_title(mock_show, adata, pvals):
     g = plot_cpdb_heatmap(
         adata=adata,
