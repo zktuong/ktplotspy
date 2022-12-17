@@ -95,7 +95,11 @@ def plot_cpdb_heatmap(
         count_mat.columns.name, count_mat.index.name = None, None
         count_mat[pd.isnull(count_mat)] = 0
         if symmetrical:
-            count_mat = np.triu(count_mat) + np.tril(count_mat.T) + np.tril(count_mat) + np.triu(count_mat.T)
+            count_matx = np.triu(count_mat) + np.tril(count_mat.T) + np.tril(count_mat) + np.triu(count_mat.T)
+            count_matx = pd.DataFrame(count_matx)
+            count_matx.columns = count_mat.columns
+            count_matx.index = count_mat.index
+            count_mat = count_matx.copy()
             all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) 
         else:
             all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
