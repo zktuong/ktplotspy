@@ -79,16 +79,15 @@ def plot_cpdb_heatmap(
     all_intr = pvals.copy()
     labels = metadata[celltype_key]
     intr_pairs = all_intr.interacting_pair
-    all_int = all_intr.iloc[:, 12 : all_intr.shape[1]].T
+    all_int = all_intr.iloc[:, 11 : all_intr.shape[1]].T
     all_int.columns = intr_pairs
     all_count = all_int.melt(ignore_index=False).reset_index()
     if degs_analysis:
-        all_count_lim = all_count[all_count.value == 1]
+        all_count['significant'] = all_count.value == 1
     else:
-        all_count_lim = all_count[all_count.value < alpha]
-    count1x = all_count[["index", "interacting_pair"]].groupby("index").agg({"interacting_pair": "count"})
+        all_count['significant'] = all_count.value < alpha
+    count1x = all_count[["index", "significant"]].groupby("index").agg({"significant": "sum"})
     tmp = pd.DataFrame([x.split("|") for x in count1x.index])
-    count1x = all_count_lim[["index", "interacting_pair"]].groupby("index").agg({"interacting_pair": "count"})
     count_final = pd.concat([tmp, count1x.reset_index(drop=True)], axis=1)
     count_final.columns = ["SOURCE", "TARGET", "COUNT"]
     if any(count_final.COUNT > 0):
