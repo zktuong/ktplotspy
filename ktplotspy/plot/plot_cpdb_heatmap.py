@@ -83,9 +83,9 @@ def plot_cpdb_heatmap(
     all_int.columns = intr_pairs
     all_count = all_int.melt(ignore_index=False).reset_index()
     if degs_analysis:
-        all_count['significant'] = all_count.value == 1
+        all_count["significant"] = all_count.value == 1
     else:
-        all_count['significant'] = all_count.value < alpha
+        all_count["significant"] = all_count.value < alpha
     count1x = all_count[["index", "significant"]].groupby("index").agg({"significant": "sum"})
     tmp = pd.DataFrame([x.split("|") for x in count1x.index])
     count_final = pd.concat([tmp, count1x.reset_index(drop=True)], axis=1)
