@@ -25,7 +25,7 @@ def plot_cpdb_heatmap(
     cmap: Optional[Union[str, ListedColormap]] = None,
     title: str = "",
     return_tables: bool = False,
-    symmetrical: bool = False,
+    symmetrical: bool = True,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
     """Plot cellphonedb results as total counts of interactions.
@@ -96,6 +96,7 @@ def plot_cpdb_heatmap(
         count_mat[pd.isnull(count_mat)] = 0
         if symmetrical:
             count_matx = np.triu(count_mat) + np.tril(count_mat.T) + np.tril(count_mat) + np.triu(count_mat.T)
+            count_matx[np.diag_indices_from(count_matx)] = np.diag(count_mat)
             count_matx = pd.DataFrame(count_matx)
             count_matx.columns = count_mat.columns
             count_matx.index = count_mat.index
