@@ -230,7 +230,7 @@ def plot_cpdb(
     # whether or not to fillter to only significant hits
     if keep_significant_only:
         keep_rows = pvals_matx.apply(lambda r: any(r < alpha), axis=1)
-        keep_rows = [r for r, k in keep_rows.iteritems() if k]
+        keep_rows = [r for r, k in keep_rows.items() if k]
         if len(keep_rows) > 0:
             pvals_matx = pvals_matx.loc[keep_rows]
             means_matx = means_matx.loc[keep_rows]
