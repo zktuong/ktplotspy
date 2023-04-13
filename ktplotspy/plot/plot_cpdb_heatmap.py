@@ -12,6 +12,7 @@ from ktplotspy.utils.support import diverging_palette
 def plot_cpdb_heatmap(
     adata: "AnnData",  # actually not needed
     pvals: pd.DataFrame,
+    celltype_key: str,
     degs_analysis: bool = False,
     log1p_transform: bool = False,
     alpha: float = 0.05,
