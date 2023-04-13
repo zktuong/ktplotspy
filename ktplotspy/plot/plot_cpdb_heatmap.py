@@ -10,7 +10,7 @@ from ktplotspy.utils.support import diverging_palette
 
 
 def plot_cpdb_heatmap(
-    adata: "AnnData",
+    adata: "AnnData",  # actually not needed
     pvals: pd.DataFrame,
     celltype_key: str,
     degs_analysis: bool = False,
@@ -75,9 +75,7 @@ def plot_cpdb_heatmap(
     Union[sns.matrix.ClusterGrid, Dict]
         Either heatmap of cellphonedb interactions or dataframe containing the interaction network.
     """
-    metadata = adata.obs.copy()
     all_intr = pvals.copy()
-    labels = metadata[celltype_key]
     intr_pairs = all_intr.interacting_pair
     all_int = all_intr.iloc[:, 11 : all_intr.shape[1]].T
     all_int.columns = intr_pairs
@@ -101,11 +99,6 @@ def plot_cpdb_heatmap(
             count_matx.columns = count_mat.columns
             count_matx.index = count_mat.index
             count_mat = count_matx.copy()
-            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"])
-        else:
-            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"]) + pd.DataFrame(
-                count_mat.apply(sum, axis=1), columns=["total_interactions"]
-            )
     if log1p_transform:
         count_mat = np.log1p(count_mat)
     if cmap is None:
@@ -126,5 +119,12 @@ def plot_cpdb_heatmap(
             g.fig.suptitle(title)
         return g
     else:
+        if symmetrical:
+            all_sum = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions"])
+        else:
+            count_mat = count_mat.T  # so that the table output is the same layout as the plot
+            row_sums = pd.DataFrame(count_mat.apply(sum, axis=0), columns=["total_interactions_row"])
+            col_sums = pd.DataFrame(count_mat.apply(sum, axis=1), columns=["total_interactions_col"])
+            all_sum = pd.concat([row_sums, col_sums], axis=1)
         out = {"count_network": count_mat, "interaction_count": all_sum, "interaction_edges": count_final}
         return out
