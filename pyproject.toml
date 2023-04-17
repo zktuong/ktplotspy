@@ -33,7 +33,7 @@ plotnine = "*"
 seaborn = "*"
 requests = "*"
 python-circos = "^0.3.0"
-anndata = {optional = true, version = "^0.7.6"}
+anndata = {optional = true, version = ">=0.7.6,<0.10.0"}
 black = {optional = true, version = "*"}
 pytest-cov = {optional = true, version = "*"}
 nbsphinx = {optional = true, version = "*"}
