@@ -9,9 +9,13 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+      time: "11:00"
+      day: "monday"
+      timezone: "Australia/Brisbane"
     # Include a list of updated dependencies
     # with a prefix determined by the dependency group
     commit-message:
       prefix: "pip prod"
       prefix-development: "pip dev"
       include: "scope"
+      
