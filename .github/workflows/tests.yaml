@@ -23,8 +23,8 @@ jobs:
         uses: tj-actions/changed-files@v35
         with:
           files: |
-            *.{yml,py}
-            **/*.{yml,py}
+            *.{yaml,py}
+            **/*.{yaml,py}
             tests
       - name: List all changed files
         run: |
