@@ -23,8 +23,8 @@ jobs:
         uses: tj-actions/changed-files@v35
         with:
           files: |
-            *.{yaml,py}
-            **/*.{yaml,py}
+            *.{yaml,yml,py}
+            **/*.{yaml,yml,py}
             tests
       - name: List all changed files
         run: |
@@ -58,8 +58,8 @@ jobs:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.config.python-version }}
