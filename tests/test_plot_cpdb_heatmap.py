@@ -16,9 +16,7 @@ from ktplotspy.plot import plot_cpdb_heatmap
 )
 def test_plot_cpdb_heatmap(mock_show, adata, pvals, deg):
     g = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         degs_analysis=deg,
     )
     g
@@ -28,9 +26,7 @@ def test_plot_cpdb_heatmap(mock_show, adata, pvals, deg):
 @pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_log(mock_show, adata, pvals):
     g = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         log1p_transform=True,
     )
     g
@@ -40,9 +36,7 @@ def test_plot_cpdb_heatmap_log(mock_show, adata, pvals):
 @pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_sym(mock_show, adata, pvals):
     g = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         symmetrical=True,
     )
     g
@@ -52,9 +46,7 @@ def test_plot_cpdb_heatmap_sym(mock_show, adata, pvals):
 @pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_title(mock_show, adata, pvals):
     g = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         title="hey!",
     )
     g
@@ -64,9 +56,7 @@ def test_plot_cpdb_heatmap_title(mock_show, adata, pvals):
 @pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_cmap(mock_show, adata, pvals):
     g = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         cmap="viridis",
     )
     g
@@ -75,9 +65,7 @@ def test_plot_cpdb_heatmap_cmap(mock_show, adata, pvals):
 @pytest.mark.usefixtures("adata", "pvals")
 def test_plot_cpdb_heatmap_return(adata, pvals):
     dfs = plot_cpdb_heatmap(
-        adata=adata,
         pvals=pvals,
-        celltype_key="celltype",
         return_tables=True,
     )
     for d in dfs:
