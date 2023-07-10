@@ -10,9 +10,7 @@ from ktplotspy.utils.support import diverging_palette
 
 
 def plot_cpdb_heatmap(
-    adata: "AnnData",  # actually not needed
     pvals: pd.DataFrame,
-    celltype_key: str,
     degs_analysis: bool = False,
     log1p_transform: bool = False,
     alpha: float = 0.05,
@@ -37,9 +35,6 @@ def plot_cpdb_heatmap(
         The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
     pvals : pd.DataFrame
         Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
-    celltype_key : str
-        Column name in `adata.obs` storing the celltype annotations.
-        Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
     degs_analysis : bool, optional
         Whether `cellphonedb` was run in `deg_analysis` mode.
     log1p_transform : bool, optional

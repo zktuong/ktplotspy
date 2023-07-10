@@ -18,39 +18,33 @@ keywords = [
     "plot_cpdb",
     "ktplots",
     "ligand-receptor",
-    "interaction"
+    "interaction",
 ]
 readme = "README.rst"
-include = [
-    "LICENSE",
-]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pandas= "*"
+pandas = "*"
 numpy = "*"
 plotnine = "*"
 seaborn = "*"
 requests = "*"
 python-circos = "^0.3.0"
-anndata = {optional = true, version = ">=0.7.6,<0.10.0"}
-black = {optional = true, version = "*"}
-pytest-cov = {optional = true, version = "*"}
-nbsphinx = {optional = true, version = "*"}
-sphinx-autodoc-typehints = {optional = true, version = "*"}
-sphinx_rtd_theme = {optional = true, version = "*"}
-readthedocs-sphinx-ext = {optional = true, version = "*"}
-recommonmark = {optional = true, version = "*"}
+anndata = { optional = true, version = ">=0.7.6,<0.10.0" }
+black = { optional = true, version = "*" }
+pytest-cov = { optional = true, version = "*" }
+nbsphinx = { optional = true, version = "<=0.9.1" }
+sphinx-autodoc-typehints = { optional = true, version = "<=1.23.0" }
+sphinx_rtd_theme = { optional = true, version = "<=1.2.0" }
+readthedocs-sphinx-ext = { optional = true, version = "<=2.2.0" }
+recommonmark = { optional = true, version = "<=0.7.1" }
 
 [tool.poetry.dev-dependencies]
 
 
 [tool.poetry.extras]
-test = [
-    "anndata",
-    "black",
-    "pytest-cov",
-]
+test = ["anndata", "black", "pytest-cov"]
 docs = [
     "nbsphinx",
     "sphinx-autodoc-typehints",
@@ -66,10 +60,10 @@ build-backend = "poetry.core.masonry.api"
 # Configuration for pytest
 [tool.pytest.ini_options]
 filterwarnings = [
-    "ignore::DeprecationWarning", 
-    "ignore::plotnine.exceptions.PlotnineWarning"
+    "ignore::DeprecationWarning",
+    "ignore::plotnine.exceptions.PlotnineWarning",
 ]
-testpaths=["tests"]
+testpaths = ["tests"]
 addopts = """\
     --cov ktplotspy \
     --cov-report=xml

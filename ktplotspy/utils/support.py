@@ -462,7 +462,7 @@ def linear_gradient(start_hex: str, finish_hex: str = "#FFFFFF", n: int = 10) ->
     # Starting and ending colours in RGB form
     s = hex_to_rgb(start_hex)
     f = hex_to_rgb(finish_hex)
-    # Initilize a list of the output colours with the starting colour
+    # Initialize a list of the output colours with the starting colour
     RGB_list = [s]
     # Calculate a colour at each evenly spaced value of t from 1 to n
     for t in range(1, n):
@@ -623,7 +623,7 @@ def generate_df(
     interactions_subset : pd.DataFrame
         processed mean table.
     cell_type_grid : pd.DataFrame
-        basicall an edge list/table.
+        basically an edge list/table.
     cell_type_means : pd.DataFrame
         expression dataframe.
     cell_type_fractions : pd.DataFrame
