@@ -149,7 +149,7 @@ def plot_cpdb(
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
     if degs_analysis:
-        pvals_mat.iloc[:, 12 : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, 12 : pvals_mat.shape[1]]
+        pvals_mat.iloc[:, 11 : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, 11 : pvals_mat.shape[1]]
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
     cell_type2 = sub_pattern(cell_type=cell_type2, pattern=special_character_regex_pattern)
@@ -227,14 +227,14 @@ def plot_cpdb(
         col_order = means_matx.columns
     means_matx = means_matx[col_order]
     pvals_matx = pvals_matx[col_order]
-    # whether or not to fillter to only significant hits
+    # whether or not to filter to only significant hits
     if keep_significant_only:
         keep_rows = pvals_matx.apply(lambda r: any(r < alpha), axis=1)
         keep_rows = [r for r, k in keep_rows.items() if k]
         if len(keep_rows) > 0:
             pvals_matx = pvals_matx.loc[keep_rows]
             means_matx = means_matx.loc[keep_rows]
-    # reun hierarchical clustering on the rows based on interaction value.
+    # run hierarchical clustering on the rows based on interaction value.
     if cluster_rows:
         if means_matx.shape[0] > 2:
             h_order = hclust(means_matx, axis=0)
