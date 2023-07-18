@@ -35,7 +35,7 @@ anndata = { optional = true, version = ">=0.7.6,<0.10.0" }
 black = { optional = true, version = "*" }
 pytest-cov = { optional = true, version = "*" }
 sphinx = { optional = true, version = "<7" }                         # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
-nbsphinx = { optional = true, version = "<=0.9.1" }
+nbsphinx = { optional = true, version = "<=0.9.2" }
 sphinx-autodoc-typehints = { optional = true, version = "<=1.23.0" }
 sphinx_rtd_theme = { optional = true, version = "<=1.2.2" }
 readthedocs-sphinx-ext = { optional = true, version = "<=2.2.2" }
