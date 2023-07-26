@@ -149,7 +149,7 @@ def plot_cpdb(
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
     if degs_analysis:
-        col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
+        col_start = 13 if pvals_mat.columns[12] == "classification" else 12  # in v5, there are 12 columns before the values
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
