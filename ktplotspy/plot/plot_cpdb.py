@@ -44,6 +44,7 @@ def plot_cpdb(
     cell_type2: str,
     means: pd.DataFrame,
     pvals: pd.DataFrame,
+    interaction_scores: pd.DataFrame,
     celltype_key: str,
     degs_analysis: bool = False,
     splitby_key: Optional[str] = None,
@@ -64,7 +65,7 @@ def plot_cpdb(
     exclude_interactions: Optional[Union[List, str]] = None,
     title: str = "",
     return_table: bool = False,
-    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
+    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8), 
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -81,6 +82,8 @@ def plot_cpdb(
         Dataframe corresponding to `means.txt` from cellphonedb.
     pvals : pd.DataFrame
         Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
+    interaction_scores : pd.DataFrame
+        Dataframe corresponding to `interactions.txt` from cellphonedb.
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
@@ -148,8 +151,10 @@ def plot_cpdb(
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
+    if interaction_scores is not None:
+        interaction_scores_mat = prep_table(data=interaction_scores)
     if degs_analysis:
-        col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
+        col_start = 13 if pvals_mat.columns[12] == "classification" else 12  # in v5, there are 12 columns before the values
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
@@ -217,6 +222,8 @@ def plot_cpdb(
     # filter
     means_matx = filter_interaction_and_celltype(data=means_mat, genes=query, celltype_pairs=ct_columns)
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
+    if interaction_scores is not None:
+        interaction_scores_matx = filter_interaction_and_celltype(data=interaction_scores_mat, genes=query, celltype_pairs=ct_columns)
     # reorder the columns
     col_order = []
     if splitby_key is not None:
@@ -228,6 +235,8 @@ def plot_cpdb(
         col_order = means_matx.columns
     means_matx = means_matx[col_order]
     pvals_matx = pvals_matx[col_order]
+    if interaction_scores is not None:
+        interaction_scores_matx = interaction_scores_matx[col_order]
     # whether or not to filter to only significant hits
     if keep_significant_only:
         keep_rows = pvals_matx.apply(lambda r: any(r < alpha), axis=1)
@@ -235,23 +244,34 @@ def plot_cpdb(
         if len(keep_rows) > 0:
             pvals_matx = pvals_matx.loc[keep_rows]
             means_matx = means_matx.loc[keep_rows]
+            if interaction_scores is not None:
+                interaction_scores_matx = interaction_scores_matx.loc[keep_rows]
     # run hierarchical clustering on the rows based on interaction value.
     if cluster_rows:
         if means_matx.shape[0] > 2:
             h_order = hclust(means_matx, axis=0)
             means_matx = means_matx.loc[h_order]
             pvals_matx = pvals_matx.loc[h_order]
+            if interaction_scores is not None:
+                interaction_scores_matx = interaction_scores_matx.loc[h_order]
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
     # prepare final table
     colm = "scaled_means" if standard_scale else "means"
     df = means_matx.melt(ignore_index=False).reset_index()
+    df.index = df["index"] + DEFAULT_SEP * 3 + df["variable"]
     df.columns = ["interaction_group", "celltype_group", colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
     df_pvals.columns = ["interaction_group", "celltype_group", "pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
+    if interaction_scores is not None:
+        df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
+        df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]  
+        df_interaction_scores.columns = ["interaction_group", "celltype_group", "interaction_scores"]
+        df["interaction_scores"] = df_interaction_scores["interaction_scores"]
+    
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
     # prepare for non-default style plotting
