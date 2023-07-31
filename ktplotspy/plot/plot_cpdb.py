@@ -44,8 +44,8 @@ def plot_cpdb(
     cell_type2: str,
     means: pd.DataFrame,
     pvals: pd.DataFrame,
-    interaction_scores: pd.DataFrame,
     celltype_key: str,
+    interaction_scores: Optional[pd.DataFrame] = None,
     degs_analysis: bool = False,
     splitby_key: Optional[str] = None,
     alpha: float = 0.05,
@@ -82,11 +82,11 @@ def plot_cpdb(
         Dataframe corresponding to `means.txt` from cellphonedb.
     pvals : pd.DataFrame
         Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
-    interaction_scores : pd.DataFrame
-        Dataframe corresponding to `interactions.txt` from cellphonedb.
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
+    interaction_scores : Optional[pd.DataFrame], optional
+        Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
     degs_analysis : bool, optional
         Whether `cellphonedb` was run in `deg_analysis` mode.
     splitby_key : Optional[str], optional
