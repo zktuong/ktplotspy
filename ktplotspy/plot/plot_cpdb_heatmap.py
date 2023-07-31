@@ -72,7 +72,8 @@ def plot_cpdb_heatmap(
     """
     all_intr = pvals.copy()
     intr_pairs = all_intr.interacting_pair
-    all_int = all_intr.iloc[:, 11 : all_intr.shape[1]].T
+    col_start = 13 if all_intr.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
+    all_int = all_intr.iloc[:, col_start : all_intr.shape[1]].T
     all_int.columns = intr_pairs
     all_count = all_int.melt(ignore_index=False).reset_index()
     if degs_analysis:
