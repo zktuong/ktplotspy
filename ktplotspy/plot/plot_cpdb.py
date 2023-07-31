@@ -65,7 +65,7 @@ def plot_cpdb(
     exclude_interactions: Optional[Union[List, str]] = None,
     title: str = "",
     return_table: bool = False,
-    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8), 
+    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -154,7 +154,7 @@ def plot_cpdb(
     if interaction_scores is not None:
         interaction_scores_mat = prep_table(data=interaction_scores)
     if degs_analysis:
-        col_start = 13 if pvals_mat.columns[12] == "classification" else 12  # in v5, there are 12 columns before the values
+        col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
@@ -268,10 +268,10 @@ def plot_cpdb(
     df["pvals"] = df_pvals["pvals"]
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
-        df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]  
+        df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
         df_interaction_scores.columns = ["interaction_group", "celltype_group", "interaction_scores"]
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
-    
+
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
     # prepare for non-default style plotting
