@@ -66,6 +66,8 @@ def plot_cpdb(
     title: str = "",
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
+    filter_by_interaction_scores: int = 0,
+    interaction_score_ranking: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -134,6 +136,10 @@ def plot_cpdb(
     figsize : Tuple[Union[int, float], Union[int, float]], optional
         Figure size.
 
+    filter_by_interaction_scores: int, optional
+        Filtering the interactions shown by including only those above the given interaction score.
+    interaction_score_ranking: bool, optional
+        Whether or not to filter the transparency of interactions by the interaction score.
     Returns
     -------
     Union[ggplot, pd.DataFrame]
