@@ -67,7 +67,7 @@ def plot_cpdb(
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
     filter_by_interaction_scores: int = 0,
-    interaction_score_ranking: bool = False,
+    interaction_score_ranking_alpha: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -137,7 +137,7 @@ def plot_cpdb(
         Figure size.
     filter_by_interaction_scores: int, optional
         Filtering the interactions shown by including only those above the given interaction score.
-    interaction_score_ranking: bool, optional
+    interaction_score_ranking_alpha: bool, optional
         Whether or not to filter the transparency of interactions by the interaction score.
     Returns
     -------
@@ -331,7 +331,56 @@ def plot_cpdb(
             stroke = "neglog10p"
 
         # plotting
-        if interaction_score_ranking:
+        if interaction_scores is not None:
+            if filter_by_interaction_scores:
+                df = df[df.interaction_scores >= filter_by_interaction_scores]
+            if interaction_score_ranking_alpha:
+                if default_style:
+                    g = ggplot(
+                        df,
+                        aes(
+                            x="celltype_group",
+                            y="interaction_group",
+                            colour="significant",
+                            fill=colm,
+                            size=colm,
+                            stroke=stroke,
+                            alpha="interaction_ranking",
+                        ),
+                    )
+                else:
+                    if all(df["significant"] == "no"):
+                        g = ggplot(
+                            df,
+                            aes(
+                                x="celltype_group",
+                                y="interaction_group",
+                                colour="significant",
+                                fill=colm,
+                                size=colm,
+                                stroke=stroke,
+                                alpha="interaction_ranking",
+                            ),
+                        )
+                        default_style = True
+                    else:
+                        highlight_col = "#FFFFFF"  # enforce this
+                        g = ggplot(
+                            df,
+                            aes(
+                                x="celltype_group",
+                                y="interaction_group",
+                                colour=colm,
+                                fill="significant",
+                                size=colm,
+                                stroke=stroke,
+                                alpha="interaction_ranking",
+                            ),
+                        )
+        else:
+            g = None
+
+        if g is None:
             if default_style:
                 g = ggplot(
                     df,
@@ -342,7 +391,6 @@ def plot_cpdb(
                         fill=colm,
                         size=colm,
                         stroke=stroke,
-                        alpha="interaction_ranking",
                     ),
                 )
             else:
@@ -356,7 +404,6 @@ def plot_cpdb(
                             fill=colm,
                             size=colm,
                             stroke=stroke,
-                            alpha="interaction_ranking",
                         ),
                     )
                     default_style = True
@@ -371,101 +418,75 @@ def plot_cpdb(
                             fill="significant",
                             size=colm,
                             stroke=stroke,
-                            alpha="interaction_ranking",
                         ),
                     )
-
-        else:
-            if interaction_scores is not None:
-                if filter_by_interaction_scores is not None:
-                    df = df[df.interaction_scores >= filter_by_interaction_scores]
-                    df["interaction_scores"] = df[colm]
-                    if default_style:
-                        g = ggplot(
-                            df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke)
-                        )
-                    else:
-                        if all(df["significant"] == "no"):
-                            g = ggplot(
-                                df,
-                                aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke),
-                            )
-                            default_style = True
-                        else:
-                            highlight_col = "#FFFFFF"  # enforce this
-                            g = ggplot(
-                                df,
-                                aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke),
-                            )
-
-    if g is not None:
+    g = (
+        g
+        + geom_point(
+            na_rm=True,
+        )
+        + theme_bw()
+        + theme(
+            axis_text_x=element_text(angle=90, hjust=0, colour="#000000"),
+            axis_text_y=element_text(colour="#000000"),
+            axis_ticks=element_blank(),
+            axis_title_x=element_blank(),
+            axis_title_y=element_blank(),
+            legend_key=element_rect(alpha=0, width=0, height=0),
+            legend_direction="vertical",
+            legend_box="horizontal",
+        )
+        + scale_size_continuous(range=(0, max_size), aesthetics=["size"])
+        + scale_size_continuous(range=(0, max_highlight_size), aesthetics=["stroke"])
+    )
+    if default_style:
         g = (
             g
-            + geom_point(
-                na_rm=True,
+            + scale_colour_manual(values=highlight_col, na_translate=False)
+            + guides(
+                fill=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                size=guide_legend(
+                    reverse=True,
+                    order=2,
+                ),
+                stroke=guide_legend(
+                    reverse=True,
+                    order=3,
+                ),
             )
-            + theme_bw()
-            + theme(
-                axis_text_x=element_text(angle=90, hjust=0, colour="#000000"),
-                axis_text_y=element_text(colour="#000000"),
-                axis_ticks=element_blank(),
-                axis_title_x=element_blank(),
-                axis_title_y=element_blank(),
-                legend_key=element_rect(alpha=0, width=0, height=0),
-                legend_direction="vertical",
-                legend_box="horizontal",
-            )
-            + scale_size_continuous(range=(0, max_size), aesthetics=["size"])
-            + scale_size_continuous(range=(0, max_highlight_size), aesthetics=["stroke"])
+            + scale_fill_continuous(cmap_name=cmap_name)
         )
-        if default_style:
-            g = (
-                g
-                + scale_colour_manual(values=highlight_col, na_translate=False)
-                + guides(
-                    fill=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
-                    size=guide_legend(
-                        reverse=True,
-                        order=2,
-                    ),
-                    stroke=guide_legend(
-                        reverse=True,
-                        order=3,
-                    ),
-                )
-                + scale_fill_continuous(cmap_name=cmap_name)
+    else:
+        g = (
+            g
+            + scale_fill_manual(values=highlight_col, na_translate=False)
+            + guides(
+                colour=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                size=guide_legend(
+                    reverse=True,
+                    order=2,
+                ),
+                stroke=guide_legend(
+                    reverse=True,
+                    order=3,
+                ),
             )
-        else:
-            g = (
-                g
-                + scale_fill_manual(values=highlight_col, na_translate=False)
-                + guides(
-                    colour=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
-                    size=guide_legend(
-                        reverse=True,
-                        order=2,
-                    ),
-                    stroke=guide_legend(
-                        reverse=True,
-                        order=3,
-                    ),
-                )
-            )
-            df2 = df.copy()
-            for i in df2.index:
-                if df2.at[i, "pvals"] < alpha:
-                    df2.at[i, colm] = np.nan
-            g = (
-                g
-                + geom_point(aes(x="celltype_group", y="interaction_group", colour=colm, size=colm), df2, inherit_aes=False, na_rm=True)
-                + scale_colour_continuous(cmap_name=cmap_name)
-            )
-        if highlight_size is not None:
-            g = g + guides(stroke=None)
-        if title != "":
-            g = g + ggtitle(title)
-        elif gene_family is not None:
-            if isinstance(gene_family, list):
-                gene_family = ", ".join(gene_family)
-            g = g + ggtitle(gene_family)
-        return g
+        )
+        df2 = df.copy()
+        for i in df2.index:
+            if df2.at[i, "pvals"] < alpha:
+                df2.at[i, colm] = np.nan
+        g = (
+            g
+            + geom_point(aes(x="celltype_group", y="interaction_group", colour=colm, size=colm), df2, inherit_aes=False, na_rm=True)
+            + scale_colour_continuous(cmap_name=cmap_name)
+        )
+    if highlight_size is not None:
+        g = g + guides(stroke=None)
+    if title != "":
+        g = g + ggtitle(title)
+    elif gene_family is not None:
+        if isinstance(gene_family, list):
+            gene_family = ", ".join(gene_family)
+        g = g + ggtitle(gene_family)
+    return g
