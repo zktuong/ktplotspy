@@ -268,6 +268,7 @@ def plot_cpdb(
     df.index = df["index"] + DEFAULT_SEP * 3 + df["variable"]
     df.columns = ["interaction_group", "celltype_group", colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
+    df_pvals.index = df_pvals["index"] + DEFAULT_SEP * 3 + df_pvals["variable"]
     df_pvals.columns = ["interaction_group", "celltype_group", "pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
