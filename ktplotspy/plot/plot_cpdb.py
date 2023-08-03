@@ -66,8 +66,8 @@ def plot_cpdb(
     title: str = "",
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
-    filter_by_interaction_scores: int = 0,
-    interaction_score_ranking_alpha: bool = False,
+    min_interaction_score: int = 0,
+    scale_alpha_by_interaction_scores: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -135,9 +135,9 @@ def plot_cpdb(
         Whether or not to return the results as a dataframe.
     figsize : Tuple[Union[int, float], Union[int, float]], optional
         Figure size.
-    filter_by_interaction_scores: int, optional
+    min_interaction_score: int, optional
         Filtering the interactions shown by including only those above the given interaction score.
-    interaction_score_ranking_alpha: bool, optional
+    scale_alpha_by_interaction_scores: bool, optional
         Whether or not to filter the transparency of interactions by the interaction score.
     Returns
     -------
@@ -268,6 +268,7 @@ def plot_cpdb(
     df.index = df["index"] + DEFAULT_SEP * 3 + df["variable"]
     df.columns = ["interaction_group", "celltype_group", colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
+    df_pvals.index = df_pvals["index"] + DEFAULT_SEP * 3 + df_pvals["variable"]
     df_pvals.columns = ["interaction_group", "celltype_group", "pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
@@ -279,15 +280,12 @@ def plot_cpdb(
 
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
-
     # prepare for non-default style plotting
-
     for i in df.index:
         if df.at[i, colm] == 0:
             df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
     df["y_means"] = df[colm]
-    transparency_score = []
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
@@ -299,8 +297,8 @@ def plot_cpdb(
         if interaction_scores is not None:
             if df.at[i, "interaction_scores"] < 1:
                 df.at[i, "x_means"] = np.nan
-            transparency_score.append(df.at[i, "interaction_scores"] / 100)
-            df["interaction_ranking"] = transparency_score
+    if interaction_scores is not None:
+        df["interaction_ranking"] = df["interaction_scores"] / 100
     df["x_stroke"] = df["x_means"]
 
     set_x_stroke(df=df, isnull=False, stroke=0)
@@ -332,9 +330,9 @@ def plot_cpdb(
 
         # plotting
         if interaction_scores is not None:
-            if filter_by_interaction_scores:
-                df = df[df.interaction_scores >= filter_by_interaction_scores]
-            if interaction_score_ranking_alpha:
+            if min_interaction_score:
+                df = df[df.interaction_scores >= min_interaction_score]
+            if scale_alpha_by_interaction_scores:
                 if default_style:
                     g = ggplot(
                         df,
@@ -377,6 +375,8 @@ def plot_cpdb(
                                 alpha="interaction_ranking",
                             ),
                         )
+            else:
+                g = None
         else:
             g = None
 
