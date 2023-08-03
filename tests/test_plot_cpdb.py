@@ -308,3 +308,19 @@ def test_plot_exclude(mock_show, adata, means, pvals, exclude):
         exclude_interactions=exclude,
     )
     g
+
+
+# @patch("matplotlib.pyplot.show")
+# @pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
+# def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, interaction_scores_v5):
+#     g = plot_cpdb(
+#         adata=adata_v5,
+#         cell_type1="PV MYH11|PV STEAP4|PV MMPP11",
+#         cell_type2="EVT_1|EVT_2|GC|iEVT|eEVT|VCT_CCC",
+#         means=means_v5,
+#         pvals=pvals_v5,
+#         celltype_key="cell_labels",
+#         interaction_scores=interaction_scores_v5,
+#         degs_analysis=True,
+#     )
+#     g

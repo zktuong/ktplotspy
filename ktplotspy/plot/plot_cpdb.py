@@ -279,15 +279,12 @@ def plot_cpdb(
 
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
-
     # prepare for non-default style plotting
-
     for i in df.index:
         if df.at[i, colm] == 0:
             df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
     df["y_means"] = df[colm]
-    transparency_score = []
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
@@ -299,8 +296,8 @@ def plot_cpdb(
         if interaction_scores is not None:
             if df.at[i, "interaction_scores"] < 1:
                 df.at[i, "x_means"] = np.nan
-            transparency_score.append(df.at[i, "interaction_scores"] / 100)
-            df["interaction_ranking"] = transparency_score
+    if interaction_scores is not None:
+        df["interaction_ranking"] = df["interaction_scores"] / 100
     df["x_stroke"] = df["x_means"]
 
     set_x_stroke(df=df, isnull=False, stroke=0)
@@ -377,6 +374,8 @@ def plot_cpdb(
                                 alpha="interaction_ranking",
                             ),
                         )
+            else:
+                g = None
         else:
             g = None
 
