@@ -274,12 +274,15 @@ def plot_cpdb(
 
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
+
     # prepare for non-default style plotting
+
     for i in df.index:
         if df.at[i, colm] == 0:
             df.at[i, colm] = np.nan
     df["x_means"] = df[colm]
     df["y_means"] = df[colm]
+    transparency_score = []
     for i in df.index:
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
@@ -288,16 +291,26 @@ def plot_cpdb(
         if df.at[i, "pvals"] >= alpha:
             if keep_significant_only:
                 df.at[i, "y_means"] = np.nan
+        if df.at[i, "interaction_scores"] < 1:
+            df.at[i, "x_means"] = np.nan
+        transparency_score.append(df.at[i, "interaction_scores"]/100)
+    df["interaction_ranking"] = transparency_score
     df["x_stroke"] = df["x_means"]
+
     set_x_stroke(df=df, isnull=False, stroke=0)
     set_x_stroke(df=df, isnull=True, stroke=highlight_size)
+
     if exclude_interactions is not None:
         if not isinstance(exclude_interactions, list):
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
+
+
     df["neglog10p"] = abs(-1 * np.log10(df.pvals))
     df["neglog10p"] = [0 if x >= 0.05 else j for x, j in zip(df["pvals"], df["neglog10p"])]
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
+
+
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
         highlight_col = "#FFFFFF"
@@ -306,24 +319,44 @@ def plot_cpdb(
     else:
         # set global figure size
         options.figure_size = figsize
+        
         if highlight_size is not None:
             max_highlight_size = highlight_size
-            stroke = df.x_stroke
+            stroke = "x_stroke"
         else:
-            stroke = df.neglog10p
+            stroke = "neglog10p"
+
+        
         # plotting
-        if default_style:
-            g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke))
-        else:
-            if all(df["significant"] == "no"):
-                g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke))
-                default_style = True
+        if interaction_score_ranking:
+            if default_style:
+                g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke, alpha = "interaction_ranking")) 
             else:
-                highlight_col = "#FFFFFF"  # enforce this
-                g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke))
+                if all(df["significant"] == "no"):
+                    g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke, alpha = "interaction_ranking"))
+                    default_style = True
+                else:
+                    highlight_col = "#FFFFFF"  # enforce this
+                    g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke, alpha = "interaction_ranking"))
+
+        else:
+            if filter_by_interaction_scores is not None:
+                df=df[df.interaction_scores >= filter_by_interaction_scores]
+                df["interaction_scores"] = df[colm]
+                if default_style:
+                    g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke)) 
+                else:
+                    if all(df["significant"] == "no"):
+                        g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke))
+                        default_style = True
+                    else:
+                        highlight_col = "#FFFFFF"  # enforce this
+                        g = ggplot(df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke))
+
+    if g is not None:               
         g = (
             g
-            + geom_point(na_rm=True)
+            + geom_point(na_rm=True, )
             + theme_bw()
             + theme(
                 axis_text_x=element_text(angle=90, hjust=0, colour="#000000"),
@@ -389,3 +422,5 @@ def plot_cpdb(
                 gene_family = ", ".join(gene_family)
             g = g + ggtitle(gene_family)
         return g
+        
+    
