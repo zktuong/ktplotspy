@@ -7,11 +7,11 @@ from .fixtures.fixtures import (
     means_split,
     pvals_split,
     decon_split,
-    # adata_v5,
-    # means_v5,
-    # pvals_v5,
-    # interaction_scores_v5,
-    # cellsign_v5,
+    adata_v5,
+    means_v5,
+    pvals_v5,
+    interaction_scores_v5,
+    cellsign_v5,
 )
 
 __all__ = [
@@ -22,9 +22,9 @@ __all__ = [
     "means_split",
     "pvals_split",
     "decon_split",
-    # "adata_v5",
-    # "means_v5",
-    # "pvals_v5",
-    # "interaction_scores_v5",
-    # "cellsign_v5",
+    "adata_v5",
+    "means_v5",
+    "pvals_v5",
+    "interaction_scores_v5",
+    "cellsign_v5",
 ]
