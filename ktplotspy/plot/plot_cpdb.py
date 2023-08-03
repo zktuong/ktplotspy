@@ -376,24 +376,27 @@ def plot_cpdb(
                     )
 
         else:
-            if filter_by_interaction_scores is not None:
-                df = df[df.interaction_scores >= filter_by_interaction_scores]
-                df["interaction_scores"] = df[colm]
-                if default_style:
-                    g = ggplot(
-                        df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke)
-                    )
-                else:
-                    if all(df["significant"] == "no"):
+            if interaction_scores is not None:
+                if filter_by_interaction_scores is not None:
+                    df = df[df.interaction_scores >= filter_by_interaction_scores]
+                    df["interaction_scores"] = df[colm]
+                    if default_style:
                         g = ggplot(
                             df, aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke)
                         )
-                        default_style = True
                     else:
-                        highlight_col = "#FFFFFF"  # enforce this
-                        g = ggplot(
-                            df, aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke)
-                        )
+                        if all(df["significant"] == "no"):
+                            g = ggplot(
+                                df,
+                                aes(x="celltype_group", y="interaction_group", colour="significant", fill=colm, size=colm, stroke=stroke),
+                            )
+                            default_style = True
+                        else:
+                            highlight_col = "#FFFFFF"  # enforce this
+                            g = ggplot(
+                                df,
+                                aes(x="celltype_group", y="interaction_group", colour=colm, fill="significant", size=colm, stroke=stroke),
+                            )
 
     if g is not None:
         g = (
