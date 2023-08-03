@@ -135,7 +135,6 @@ def plot_cpdb(
         Whether or not to return the results as a dataframe.
     figsize : Tuple[Union[int, float], Union[int, float]], optional
         Figure size.
-
     filter_by_interaction_scores: int, optional
         Filtering the interactions shown by including only those above the given interaction score.
     interaction_score_ranking: bool, optional

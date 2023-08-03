@@ -7,6 +7,9 @@ on:
   create:
     tags:
       - "*"
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   black:
