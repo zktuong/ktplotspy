@@ -46,6 +46,7 @@ def plot_cpdb(
     pvals: pd.DataFrame,
     celltype_key: str,
     interaction_scores: Optional[pd.DataFrame] = None,
+    CellSigns: Optional[pd.DataFrame] = None,
     degs_analysis: bool = False,
     splitby_key: Optional[str] = None,
     alpha: float = 0.05,
@@ -89,6 +90,8 @@ def plot_cpdb(
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
     interaction_scores : Optional[pd.DataFrame], optional
         Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
+    CellSigns : Optional[pd.DataFrame], optional
+        Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.    
     degs_analysis : bool, optional
         Whether `cellphonedb` was run in `deg_analysis` mode.
     splitby_key : Optional[str], optional
@@ -158,6 +161,8 @@ def plot_cpdb(
     pvals_mat = prep_table(data=pvals)
     if interaction_scores is not None:
         interaction_scores_mat = prep_table(data=interaction_scores)
+    if CellSigns is not None:
+        CellSigns_mat = prep_table(data=CellSigns)
     if degs_analysis:
         col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
@@ -229,6 +234,8 @@ def plot_cpdb(
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
     if interaction_scores is not None:
         interaction_scores_matx = filter_interaction_and_celltype(data=interaction_scores_mat, genes=query, celltype_pairs=ct_columns)
+    if CellSigns is not None:
+        CellSigns_matx = filter_interaction_and_celltype(data=CellSigns_mat, genes=query, celltype_pairs=ct_columns)
     # reorder the columns
     col_order = []
     if splitby_key is not None:
@@ -242,6 +249,8 @@ def plot_cpdb(
     pvals_matx = pvals_matx[col_order]
     if interaction_scores is not None:
         interaction_scores_matx = interaction_scores_matx[col_order]
+    if CellSigns is not None:
+        CellSigns_matx = CellSigns_matx[col_order]
     # whether or not to filter to only significant hits
     if keep_significant_only:
         keep_rows = pvals_matx.apply(lambda r: any(r < alpha), axis=1)
@@ -251,6 +260,8 @@ def plot_cpdb(
             means_matx = means_matx.loc[keep_rows]
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[keep_rows]
+            if CellSigns is not None:
+                CellSigns_matx = CellSigns_matx.loc[keep_rows]
     # run hierarchical clustering on the rows based on interaction value.
     if cluster_rows:
         if means_matx.shape[0] > 2:
@@ -259,6 +270,8 @@ def plot_cpdb(
             pvals_matx = pvals_matx.loc[h_order]
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[h_order]
+            if CellSigns is not None:
+                CellSigns_matx = CellSigns_matx.loc[h_order]
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
@@ -277,6 +290,11 @@ def plot_cpdb(
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
         df_interaction_scores.columns = ["interaction_group", "celltype_group", "interaction_scores"]
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
+    if CellSigns is not None:
+        df_CellSigns = CellSigns_matx.melt(ignore_index=False).reset_index()
+        df_CellSigns.index = df_CellSigns["index"] + DEFAULT_SEP * 3 + df_CellSigns["variable"]
+        df_CellSigns.columns = ["interaction_group", "celltype_group", "interaction_scores"]
+        df["CellSigns"] = df_CellSigns["CellSigns"]
 
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
