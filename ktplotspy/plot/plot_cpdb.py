@@ -91,7 +91,7 @@ def plot_cpdb(
     interaction_scores : Optional[pd.DataFrame], optional
         Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
     CellSigns : Optional[pd.DataFrame], optional
-        Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.    
+        Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.
     degs_analysis : bool, optional
         Whether `cellphonedb` was run in `deg_analysis` mode.
     splitby_key : Optional[str], optional
@@ -315,8 +315,12 @@ def plot_cpdb(
         if interaction_scores is not None:
             if df.at[i, "interaction_scores"] < 1:
                 df.at[i, "x_means"] = np.nan
+        if CellSigns is not None:
+            if df.at[i, "CellSigns"] < 1:
+                df.at[i, "CellSigns"] = 0.5
     if interaction_scores is not None:
         df["interaction_ranking"] = df["interaction_scores"] / 100
+
     df["x_stroke"] = df["x_means"]
 
     set_x_stroke(df=df, isnull=False, stroke=0)
