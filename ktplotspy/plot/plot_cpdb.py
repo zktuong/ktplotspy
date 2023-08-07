@@ -353,8 +353,7 @@ def plot_cpdb(
 
         # plotting
         if interaction_scores is not None:
-            if min_interaction_score:
-                df = df[df.interaction_scores >= min_interaction_score]
+            df = df[df.interaction_scores >= min_interaction_score]
             if scale_alpha_by_interaction_scores:
                 if default_style:
                     g = ggplot(
