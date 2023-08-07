@@ -8,3 +8,4 @@ except:  # pragma: no cover
 
 DEFAULT_SEP = ">@<"
 DEFAULT_SPEC_PAT = "/|:|\\?|\\*|\\+|\\|\\(|\\)|\\/"
+DEFAULT_CELLSIGN_ALPHA = 0.5

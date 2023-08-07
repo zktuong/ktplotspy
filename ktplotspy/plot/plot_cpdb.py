@@ -46,7 +46,7 @@ def plot_cpdb(
     pvals: pd.DataFrame,
     celltype_key: str,
     interaction_scores: Optional[pd.DataFrame] = None,
-    CellSigns: Optional[pd.DataFrame] = None,
+    cellsign: Optional[pd.DataFrame] = None,
     degs_analysis: bool = False,
     splitby_key: Optional[str] = None,
     alpha: float = 0.05,
@@ -69,6 +69,8 @@ def plot_cpdb(
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
     min_interaction_score: int = 0,
     scale_alpha_by_interaction_scores: bool = False,
+    scale_alpha_by_cellsign: bool = False,
+    filter_by_cellsign: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting cellphonedb results as a dot plot.
 
@@ -90,7 +92,7 @@ def plot_cpdb(
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
     interaction_scores : Optional[pd.DataFrame], optional
         Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
-    CellSigns : Optional[pd.DataFrame], optional
+    cellsign : Optional[pd.DataFrame], optional
         Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.
     degs_analysis : bool, optional
         Whether `cellphonedb` was run in `deg_analysis` mode.
@@ -141,7 +143,11 @@ def plot_cpdb(
     min_interaction_score: int, optional
         Filtering the interactions shown by including only those above the given interaction score.
     scale_alpha_by_interaction_scores: bool, optional
-        Whether or not to filter the transparency of interactions by the interaction score.
+        Whether or not to filter values by the interaction score.
+    scale_alpha_by_cellsign: bool, optional
+        Whether or not to filter the transparency of interactions by the cellsign.
+    filter_by_cellsign: bool, optional
+        Filter out interactions with a 0 value cellsign.
     Returns
     -------
     Union[ggplot, pd.DataFrame]
@@ -150,8 +156,9 @@ def plot_cpdb(
     Raises
     ------
     KeyError
-        If genes and gene_family are both provided, or wrong key for gene family provided, the error will occur.
+        If genes and gene_family are both provided, wrong key for gene family provided, or if interaction_score and cellsign are both provided the error will occur.
     """
+
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
     swapr = True if (cell_type1 == ".") or (cell_type2 == ".") else False
@@ -159,10 +166,14 @@ def plot_cpdb(
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
+
+    if (interaction_scores is not None) & (cellsign is not None):
+        raise KeyError("Please specify either interaction scores or cellsign, not both.")
+
     if interaction_scores is not None:
         interaction_scores_mat = prep_table(data=interaction_scores)
-    if CellSigns is not None:
-        CellSigns_mat = prep_table(data=CellSigns)
+    elif cellsign is not None:
+        cellsign_mat = prep_table(data=cellsign)
     if degs_analysis:
         col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
@@ -234,8 +245,8 @@ def plot_cpdb(
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
     if interaction_scores is not None:
         interaction_scores_matx = filter_interaction_and_celltype(data=interaction_scores_mat, genes=query, celltype_pairs=ct_columns)
-    if CellSigns is not None:
-        CellSigns_matx = filter_interaction_and_celltype(data=CellSigns_mat, genes=query, celltype_pairs=ct_columns)
+    elif cellsign is not None:
+        cellsign_matx = filter_interaction_and_celltype(data=cellsign_mat, genes=query, celltype_pairs=ct_columns)
     # reorder the columns
     col_order = []
     if splitby_key is not None:
@@ -249,8 +260,8 @@ def plot_cpdb(
     pvals_matx = pvals_matx[col_order]
     if interaction_scores is not None:
         interaction_scores_matx = interaction_scores_matx[col_order]
-    if CellSigns is not None:
-        CellSigns_matx = CellSigns_matx[col_order]
+    elif cellsign is not None:
+        cellsign_matx = cellsign_matx[col_order]
     # whether or not to filter to only significant hits
     if keep_significant_only:
         keep_rows = pvals_matx.apply(lambda r: any(r < alpha), axis=1)
@@ -260,8 +271,8 @@ def plot_cpdb(
             means_matx = means_matx.loc[keep_rows]
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[keep_rows]
-            if CellSigns is not None:
-                CellSigns_matx = CellSigns_matx.loc[keep_rows]
+            if cellsign is not None:
+                cellsign_matx = cellsign_matx.loc[keep_rows]
     # run hierarchical clustering on the rows based on interaction value.
     if cluster_rows:
         if means_matx.shape[0] > 2:
@@ -270,8 +281,8 @@ def plot_cpdb(
             pvals_matx = pvals_matx.loc[h_order]
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[h_order]
-            if CellSigns is not None:
-                CellSigns_matx = CellSigns_matx.loc[h_order]
+            elif cellsign is not None:
+                cellsign_matx = cellsign_matx.loc[h_order]
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
@@ -290,11 +301,11 @@ def plot_cpdb(
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
         df_interaction_scores.columns = ["interaction_group", "celltype_group", "interaction_scores"]
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
-    if CellSigns is not None:
-        df_CellSigns = CellSigns_matx.melt(ignore_index=False).reset_index()
-        df_CellSigns.index = df_CellSigns["index"] + DEFAULT_SEP * 3 + df_CellSigns["variable"]
-        df_CellSigns.columns = ["interaction_group", "celltype_group", "interaction_scores"]
-        df["CellSigns"] = df_CellSigns["CellSigns"]
+    elif cellsign is not None:
+        df_cellsign = cellsign_matx.melt(ignore_index=False).reset_index()
+        df_cellsign.index = df_cellsign["index"] + DEFAULT_SEP * 3 + df_cellsign["variable"]
+        df_cellsign.columns = ["interaction_group", "celltype_group", "interaction_scores"]
+        df["cellsign"] = df_cellsign["cellsign"]
 
     # set factors
     df.celltype_group = df.celltype_group.astype("category")
@@ -315,9 +326,9 @@ def plot_cpdb(
         if interaction_scores is not None:
             if df.at[i, "interaction_scores"] < 1:
                 df.at[i, "x_means"] = np.nan
-        if CellSigns is not None:
-            if df.at[i, "CellSigns"] < 1:
-                df.at[i, "CellSigns"] = 0.5
+        elif cellsign is not None:
+            if df.at[i, "cellsign"] < 1:
+                df.at[i, "cellsign"] = DEFAULT_CELLSIGN_ALPHA
     if interaction_scores is not None:
         df["interaction_ranking"] = df["interaction_scores"] / 100
 
@@ -400,7 +411,54 @@ def plot_cpdb(
             else:
                 g = None
         else:
-            g = None
+            if cellsign is not None:
+                if filter_by_cellsign:
+                    df = df[df.cellsign >= DEFAULT_CELLSIGN_ALPHA]
+                if scale_alpha_by_cellsign:
+                    if default_style:
+                        g = ggplot(
+                            df,
+                            aes(
+                                x="celltype_group",
+                                y="interaction_group",
+                                colour="significant",
+                                fill=colm,
+                                size=colm,
+                                stroke=stroke,
+                                alpha="cellsign",
+                            ),
+                        )
+                    else:
+                        if all(df["significant"] == "no"):
+                            g = ggplot(
+                                df,
+                                aes(
+                                    x="celltype_group",
+                                    y="interaction_group",
+                                    colour="significant",
+                                    fill=colm,
+                                    size=colm,
+                                    stroke=stroke,
+                                    alpha="cellsign",
+                                ),
+                            )
+                            default_style = True
+                        else:
+                            highlight_col = "#FFFFFF"  # enforce this
+                            g = ggplot(
+                                df,
+                                aes(
+                                    x="celltype_group",
+                                    y="interaction_group",
+                                    colour=colm,
+                                    fill="significant",
+                                    size=colm,
+                                    stroke=stroke,
+                                    alpha="cellsign",
+                                ),
+                            )
+            else:
+                g = None
 
         if g is None:
             if default_style:
