@@ -71,33 +71,33 @@ def plot_cpdb(
     min_interaction_score: int = 0,
     scale_alpha_by_interaction_scores: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
-    """Plotting cellphonedb results as a dot plot.
+    """Plotting CellPhoneDB results as a dot plot.
 
     Parameters
     ----------
     adata : AnnData
         `AnnData` object with the `.obs` storing the `celltype_key` with or without `splitby_key`.
-        The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
+        The `.obs_names` must match the first column of the input `meta.txt` used for CellPhoneDB.
     cell_type1 : str
         Name of cell type 1. Accepts regex pattern.
     cell_type2 : str
         Name of cell type 1. Accepts regex pattern.
     means : pd.DataFrame
-        Dataframe corresponding to `means.txt` from cellphonedb.
+        Data frame corresponding to `means.txt` from CellPhoneDB.
     pvals : pd.DataFrame
-        Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
+        Data frame corresponding to `pvalues.txt` or `relevant_interactions.txt` from CellPhoneDB.
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
-        Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
+        Values in this column should match the second column of the input `meta.txt` used for CellPhoneDB.
     interaction_scores : Optional[pd.DataFrame], optional
-        Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
+        Dataframe corresponding to `interaction_scores.txt` from CellPhoneDB from version 5 onwards.
     CellSigns : Optional[pd.DataFrame], optional
-        Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.
+        Dataframe corresponding to `CellSign.txt` from CellPhoneDB from version 5 onwards.
     degs_analysis : bool, optional
-        Whether `cellphonedb` was run in `deg_analysis` mode.
+        Whether CellPhoneDB was run in `deg_analysis` mode.
     splitby_key : Optional[str], optional
         If provided, will attempt to split the output plot/table by groups.
-        In order for this to work, the second column of the input `meta.txt` used for `cellphonedb` MUST be this format: {splitby}_{celltype}.
+        In order for this to work, the second column of the input `meta.txt` used for CellPhoneDB MUST be this format: {splitby}_{celltype}.
     alpha : float, optional
         P value threshold value for significance.
     keep_significant_only : bool, optional
