@@ -79,12 +79,12 @@ ignore-private = false
 ignore-property-decorators = false
 ignore-module = true
 fail-under = 100.0
-ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*", "docs/.*"]
+ignore-regex = ["^get$", "^mock_.*", ".*BaseClass.*"]
 verbose = 1
 quiet = false
 whitelist-regex = []
 color = true
-exclude = ["test"]
+exclude = ["test", "docs"]
 
 [tool.black]
 line-length = 140
