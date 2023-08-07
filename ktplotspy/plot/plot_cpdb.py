@@ -15,6 +15,7 @@ from plotnine import (
     guide_legend,
     guides,
     options,
+    scale_alpha_continuous,
     scale_colour_continuous,
     scale_colour_manual,
     scale_fill_continuous,
@@ -319,7 +320,7 @@ def plot_cpdb(
             if df.at[i, "CellSigns"] < 1:
                 df.at[i, "CellSigns"] = 0.5
     if interaction_scores is not None:
-        df["interaction_ranking"] = df["interaction_scores"] / 100
+        df["interaction_ranking"] = df["interaction_scores"]
 
     df["x_stroke"] = df["x_means"]
 
@@ -505,6 +506,8 @@ def plot_cpdb(
         )
     if highlight_size is not None:
         g = g + guides(stroke=None)
+    if (interaction_scores is not None) and scale_alpha_by_interaction_scores:
+        g = g + scale_alpha_continuous(breaks=(0, 25, 50, 75, 100))
     if title != "":
         g = g + ggtitle(title)
     elif gene_family is not None:
