@@ -350,7 +350,7 @@ def plot_cpdb(
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
         highlight_col = "#FFFFFF"
-        
+
     if return_table:
         return df
     else:
