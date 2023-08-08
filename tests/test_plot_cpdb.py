@@ -355,3 +355,49 @@ def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, inter
         scale_alpha_by_interaction_scores=True,
     )
     g
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
+def test_plot_cpdb_v5_interaction_min(mock_show, adata_v5, means_v5, pvals_v5, cellsign_v5):
+    g = plot_cpdb(
+        adata=adata_v5,
+        cell_type1="PV MYH11|PV STEAP4|PV MMPP11",
+        cell_type2="EVT_1|EVT_2|GC|iEVT|eEVT|VCT_CCC",
+        means=means_v5,
+        pvals=pvals_v5,
+        celltype_key="cell_labels",
+        genes=["TGFB2", "CSF1R"],
+        figsize=(8, 3),
+        title="Interactions between\nPV and trophoblast ",
+        max_size=6,
+        highlight_size=0.75,
+        degs_analysis=True,
+        standard_scale=True,
+        cellsign=cellsign_v5,
+        scale_alpha_by_cellsign=True,
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
+def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, interaction_scores_v5):
+    g = plot_cpdb(
+        adata=adata_v5,
+        cell_type1="PV MYH11|PV STEAP4|PV MMPP11",
+        cell_type2="EVT_1|EVT_2|GC|iEVT|eEVT|VCT_CCC",
+        means=means_v5,
+        pvals=pvals_v5,
+        celltype_key="cell_labels",
+        genes=["TGFB2", "CSF1R"],
+        figsize=(8, 3),
+        title="Interactions between\nPV and trophoblast ",
+        max_size=6,
+        highlight_size=0.75,
+        degs_analysis=True,
+        standard_scale=True,
+        cellsign=cellsign_v5,
+        scale_alpha_by_cellsign=False,
+        filter_by_cellsign = True,
+    )
+    g
