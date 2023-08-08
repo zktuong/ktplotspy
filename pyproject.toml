@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ktplotspy"
-version = "0.1.10"
+version = "0.2.0"
 description = "Python library for plotting Cellphonedb results. Ported from ktplots R package."
 authors = ["Kelvin Tuong <26215587+zktuong@users.noreply.github.com>"]
 license = "MIT"
@@ -84,7 +84,7 @@ verbose = 1
 quiet = false
 whitelist-regex = []
 color = true
-exclude = ["test"]
+exclude = ["test", "docs"]
 
 [tool.black]
 line-length = 140

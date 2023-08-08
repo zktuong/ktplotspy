@@ -15,6 +15,7 @@ from plotnine import (
     guide_legend,
     guides,
     options,
+    scale_alpha_continuous,
     scale_colour_continuous,
     scale_colour_manual,
     scale_fill_continuous,
@@ -72,33 +73,33 @@ def plot_cpdb(
     scale_alpha_by_cellsign: bool = False,
     filter_by_cellsign: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
-    """Plotting cellphonedb results as a dot plot.
+    """Plotting CellPhoneDB results as a dot plot.
 
     Parameters
     ----------
     adata : AnnData
         `AnnData` object with the `.obs` storing the `celltype_key` with or without `splitby_key`.
-        The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
+        The `.obs_names` must match the first column of the input `meta.txt` used for CellPhoneDB.
     cell_type1 : str
         Name of cell type 1. Accepts regex pattern.
     cell_type2 : str
         Name of cell type 1. Accepts regex pattern.
     means : pd.DataFrame
-        Dataframe corresponding to `means.txt` from cellphonedb.
+        Data frame corresponding to `means.txt` from CellPhoneDB.
     pvals : pd.DataFrame
-        Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
+        Data frame corresponding to `pvalues.txt` or `relevant_interactions.txt` from CellPhoneDB.
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
-        Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
+        Values in this column should match the second column of the input `meta.txt` used for CellPhoneDB.
     interaction_scores : Optional[pd.DataFrame], optional
-        Dataframe corresponding to `interaction_scores.txt` from cellphonedb. Only from version 5 onwards.
+        Data frame corresponding to `interaction_scores.txt` from CellPhoneDB version 5 onwards.
     cellsign : Optional[pd.DataFrame], optional
-        Dataframe corresponding to `CellSign.txt` from cellphonedb. Only from version 5 onwards.
+        Data frame corresponding to `CellSign.txt` from CellPhoneDB version 5 onwards.
     degs_analysis : bool, optional
-        Whether `cellphonedb` was run in `deg_analysis` mode.
+        Whether CellPhoneDB was run in `deg_analysis` mode.
     splitby_key : Optional[str], optional
         If provided, will attempt to split the output plot/table by groups.
-        In order for this to work, the second column of the input `meta.txt` used for `cellphonedb` MUST be this format: {splitby}_{celltype}.
+        In order for this to work, the second column of the input `meta.txt` used for CellPhoneDB MUST be this format: {splitby}_{celltype}.
     alpha : float, optional
         P value threshold value for significance.
     keep_significant_only : bool, optional
@@ -151,7 +152,7 @@ def plot_cpdb(
     Returns
     -------
     Union[ggplot, pd.DataFrame]
-        Either a plotnine `ggplot` plot or a pandas `Dataframe` holding the results.
+        Either a plotnine `ggplot` plot or a pandas `Data frame` holding the results.
 
     Raises
     ------
@@ -330,7 +331,7 @@ def plot_cpdb(
             if df.at[i, "cellsign"] < 1:
                 df.at[i, "cellsign"] = DEFAULT_CELLSIGN_ALPHA
     if interaction_scores is not None:
-        df["interaction_ranking"] = df["interaction_scores"] / 100
+        df["interaction_ranking"] = df["interaction_scores"]
 
     df["x_stroke"] = df["x_means"]
 
@@ -363,8 +364,7 @@ def plot_cpdb(
 
         # plotting
         if interaction_scores is not None:
-            if min_interaction_score:
-                df = df[df.interaction_scores >= min_interaction_score]
+            df = df[df.interaction_scores >= min_interaction_score]
             if scale_alpha_by_interaction_scores:
                 if default_style:
                     g = ggplot(
@@ -563,6 +563,8 @@ def plot_cpdb(
         )
     if highlight_size is not None:
         g = g + guides(stroke=None)
+    if (interaction_scores is not None) and scale_alpha_by_interaction_scores:
+        g = g + scale_alpha_continuous(breaks=(0, 25, 50, 75, 100))
     if title != "":
         g = g + ggtitle(title)
     elif gene_family is not None:
