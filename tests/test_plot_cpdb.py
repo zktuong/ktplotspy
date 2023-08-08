@@ -356,9 +356,10 @@ def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, inter
     )
     g
 
+
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
-def test_plot_cpdb_v5_interaction_min(mock_show, adata_v5, means_v5, pvals_v5, cellsign_v5):
+def test_plot_cpdb_v5_cellsign_alpha(mock_show, adata_v5, means_v5, pvals_v5, cellsign_v5):
     g = plot_cpdb(
         adata=adata_v5,
         cell_type1="PV MYH11|PV STEAP4|PV MMPP11",
@@ -381,7 +382,7 @@ def test_plot_cpdb_v5_interaction_min(mock_show, adata_v5, means_v5, pvals_v5, c
 
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
-def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, interaction_scores_v5):
+def test_plot_cpdb_v5_cellsign_filter(mock_show, adata_v5, means_v5, pvals_v5, cellsign_v5):
     g = plot_cpdb(
         adata=adata_v5,
         cell_type1="PV MYH11|PV STEAP4|PV MMPP11",
@@ -398,6 +399,6 @@ def test_plot_cpdb_v5_interaction(mock_show, adata_v5, means_v5, pvals_v5, inter
         standard_scale=True,
         cellsign=cellsign_v5,
         scale_alpha_by_cellsign=False,
-        filter_by_cellsign = True,
+        filter_by_cellsign=True,
     )
     g
