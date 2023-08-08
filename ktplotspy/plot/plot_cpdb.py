@@ -26,7 +26,7 @@ from plotnine import (
 )
 from typing import List, Literal, Optional, Union, Tuple, Dict
 
-from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT
+from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA
 from ktplotspy.utils.support import (
     ensure_categorical,
     filter_interaction_and_celltype,
@@ -350,6 +350,7 @@ def plot_cpdb(
     if all(pd.isnull(df["significant"])):
         df["significant"] = "no"
         highlight_col = "#FFFFFF"
+        
     if return_table:
         return df
     else:
