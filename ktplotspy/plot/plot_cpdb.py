@@ -273,7 +273,12 @@ def plot_cpdb(
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[keep_rows]
             if cellsign is not None:
-                cellsign_matx = cellsign_matx.loc[keep_rows]
+                # cellsign data is actually a subset so let's do
+                keep_rows = [r for r in keep_rows if r in cellsign_matx.index]
+                if len(keep_rows) > 0:
+                    cellsign_matx = cellsign_matx.loc[keep_rows]
+                else:
+                    raise ValueError("Your cellsign data may not contain significant hits.")
     # run hierarchical clustering on the rows based on interaction value.
     if cluster_rows:
         if means_matx.shape[0] > 2:
@@ -283,7 +288,11 @@ def plot_cpdb(
             if interaction_scores is not None:
                 interaction_scores_matx = interaction_scores_matx.loc[h_order]
             elif cellsign is not None:
-                cellsign_matx = cellsign_matx.loc[h_order]
+                h_order = [h for h in h_order if h in cellsign_matx.index]
+                if len(h_order) > 0:
+                    cellsign_matx = cellsign_matx.loc[h_order]
+                else:
+                    raise ValueError("Your cellsign data may not contain significant hits.")
     if standard_scale:
         means_matx = means_matx.apply(lambda r: (r - np.min(r)) / (np.max(r) - np.min(r)), axis=1)
     means_matx.fillna(0, inplace=True)
