@@ -309,12 +309,16 @@ def plot_cpdb(
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
-        df_interaction_scores.columns = ["interaction_group", "celltype_group", "interaction_scores"]
+        df_interaction_scores.columns = [
+            "interaction_group",
+            "celltype_group",
+            "interaction_scores",
+        ]  # @Alicia, can we create DEFAULT_* for the columns? since they are getting used a lot and repeated over and over again.
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
     elif cellsign is not None:
         df_cellsign = cellsign_matx.melt(ignore_index=False).reset_index()
         df_cellsign.index = df_cellsign["index"] + DEFAULT_SEP * 3 + df_cellsign["variable"]
-        df_cellsign.columns = ["interaction_group", "celltype_group", "interaction_scores"]
+        df_cellsign.columns = ["interaction_group", "celltype_group", "cellsign"]  # same as above.
         df["cellsign"] = df_cellsign["cellsign"]
 
     # set factors
