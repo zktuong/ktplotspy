@@ -581,6 +581,8 @@ def plot_cpdb(
         g = g + guides(stroke=None)
     if (interaction_scores is not None) and scale_alpha_by_interaction_scores:
         g = g + scale_alpha_continuous(breaks=(0, 25, 50, 75, 100))
+    if (cellsign is not None) and scale_alpha_by_cellsign:
+        g = g + scale_alpha_continuous(breaks=(0, 1))
     if title != "":
         g = g + ggtitle(title)
     elif gene_family is not None:
