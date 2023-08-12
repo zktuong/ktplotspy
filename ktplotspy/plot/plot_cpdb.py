@@ -471,6 +471,8 @@ def plot_cpdb(
                                     alpha="cellsign",
                                 ),
                             )
+                else:
+                    g = None
             else:
                 g = None
 
