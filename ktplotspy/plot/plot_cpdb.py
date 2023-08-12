@@ -26,7 +26,7 @@ from plotnine import (
 )
 from typing import List, Literal, Optional, Union, Tuple, Dict
 
-from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA
+from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA, DEFAULT_COLUMNS
 from ktplotspy.utils.support import (
     ensure_categorical,
     filter_interaction_and_celltype,
@@ -300,25 +300,21 @@ def plot_cpdb(
     colm = "scaled_means" if standard_scale else "means"
     df = means_matx.melt(ignore_index=False).reset_index()
     df.index = df["index"] + DEFAULT_SEP * 3 + df["variable"]
-    df.columns = ["interaction_group", "celltype_group", colm]
+    df.columns = [DEFAULT_COLUMNS, colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
     df_pvals.index = df_pvals["index"] + DEFAULT_SEP * 3 + df_pvals["variable"]
-    df_pvals.columns = ["interaction_group", "celltype_group", "pvals"]
+    df_pvals.columns = [DEFAULT_COLUMNS, "pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
-        df_interaction_scores.columns = [
-            "interaction_group",
-            "celltype_group",
-            "interaction_scores",
-        ]  # @Alicia, can we create DEFAULT_* for the columns? since they are getting used a lot and repeated over and over again.
+        df_interaction_scores.columns = [DEFAULT_COLUMNS, "interaction_scores"]  
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
     elif cellsign is not None:
         df_cellsign = cellsign_matx.melt(ignore_index=False).reset_index()
         df_cellsign.index = df_cellsign["index"] + DEFAULT_SEP * 3 + df_cellsign["variable"]
-        df_cellsign.columns = ["interaction_group", "celltype_group", "cellsign"]  # same as above.
+        df_cellsign.columns = [DEFAULT_COLUMNS, "cellsign"]  # same as above.
         df["cellsign"] = df_cellsign["cellsign"]
 
     # set factors
