@@ -300,7 +300,7 @@ def plot_cpdb(
     colm = "scaled_means" if standard_scale else "means"
     df = means_matx.melt(ignore_index=False).reset_index()
     df.index = df["index"] + DEFAULT_SEP * 3 + df["variable"]
-    df.columns = DEFAULT_COLUMNS +[colm]
+    df.columns = DEFAULT_COLUMNS + [colm]
     df_pvals = pvals_matx.melt(ignore_index=False).reset_index()
     df_pvals.index = df_pvals["index"] + DEFAULT_SEP * 3 + df_pvals["variable"]
     df_pvals.columns = DEFAULT_COLUMNS + ["pvals"]
@@ -309,7 +309,7 @@ def plot_cpdb(
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
-        df_interaction_scores.columns = DEFAULT_COLUMNS + [ "interaction_scores"]  
+        df_interaction_scores.columns = DEFAULT_COLUMNS + ["interaction_scores"]
         df["interaction_scores"] = df_interaction_scores["interaction_scores"]
     elif cellsign is not None:
         df_cellsign = cellsign_matx.melt(ignore_index=False).reset_index()
