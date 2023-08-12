@@ -12,7 +12,7 @@
    :caption: Tutorial:
 
    notebooks/tutorial.ipynb
-   notebooks/tutorial_v5_interaction_score.ipynb
+   notebooks/tutorial_v5.ipynb
 
 .. toctree::
    :maxdepth: 1
