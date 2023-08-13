@@ -26,7 +26,15 @@ from plotnine import (
 )
 from typing import List, Literal, Optional, Union, Tuple, Dict
 
-from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA, DEFAULT_COLUMNS
+from ktplotspy.utils.settings import (
+    DEFAULT_V5_COL_START,
+    DEFAULT_COL_START,
+    DEFAULT_CLASS_COL,
+    DEFAULT_SEP,
+    DEFAULT_SPEC_PAT,
+    DEFAULT_CELLSIGN_ALPHA,
+    DEFAULT_COLUMNS,
+)
 from ktplotspy.utils.support import (
     ensure_categorical,
     filter_interaction_and_celltype,
@@ -174,7 +182,9 @@ def plot_cpdb(
         interaction_scores_mat = prep_table(data=interaction_scores)
     elif cellsign is not None:
         cellsign_mat = prep_table(data=cellsign)
-    col_start = DEFAULT_V5_COL_START if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
+    col_start = (
+        DEFAULT_V5_COL_START if pvals_mat.columns[DEFAULT_CLASS_COL] == "classification" else DEFAULT_COL_START
+    )  # in v5, there are 12 columns before the values
     if degs_analysis:
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # front load the dictionary construction here
