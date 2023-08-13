@@ -10,3 +10,4 @@ DEFAULT_SEP = ">@<"
 DEFAULT_SPEC_PAT = "/|:|\\?|\\*|\\+|\\|\\(|\\)|\\/"
 DEFAULT_CELLSIGN_ALPHA = 0.5
 DEFAULT_COLUMNS = ["interaction_group", "celltype_group"]
+DEFAULT_V5_COL_START = 13

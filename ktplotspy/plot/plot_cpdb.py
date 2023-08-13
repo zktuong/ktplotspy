@@ -174,17 +174,18 @@ def plot_cpdb(
         interaction_scores_mat = prep_table(data=interaction_scores)
     elif cellsign is not None:
         cellsign_mat = prep_table(data=cellsign)
-    col_start = 13 if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
+    col_start = DEFAULT_V5_COL_START if pvals_mat.columns[12] == "classification" else 11  # in v5, there are 12 columns before the values
     if degs_analysis:
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # front load the dictionary construction here
-    tmp = means_mat.melt(id_vars=means_mat.columns[:col_start])
-    direc, classif, is_int = {}, {}, {}
-    for _, r in tmp.iterrows():
-        key = r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
-        direc[key] = r.directionality
-        classif[key] = r.classification
-        is_int[key] = r.is_integrin
+    if col_start == DEFAULT_V5_COL_START:
+        tmp = means_mat.melt(id_vars=means_mat.columns[:col_start])
+        direc, classif, is_int = {}, {}, {}
+        for _, r in tmp.iterrows():
+            key = r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
+            direc[key] = r.directionality
+            classif[key] = r.classification
+            is_int[key] = r.is_integrin
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
     cell_type2 = sub_pattern(cell_type=cell_type2, pattern=special_character_regex_pattern)
@@ -367,9 +368,10 @@ def plot_cpdb(
         df["significant"] = "no"
         highlight_col = "#FFFFFF"
     # append the initial data
-    df["is_integrin"] = [is_int[i] for i in df.index]
-    df["directionality"] = [direc[i] for i in df.index]
-    df["classification"] = [classif[i] for i in df.index]
+    if col_start == DEFAULT_V5_COL_START:
+        df["is_integrin"] = [is_int[i] for i in df.index]
+        df["directionality"] = [direc[i] for i in df.index]
+        df["classification"] = [classif[i] for i in df.index]
 
     if return_table:
         return df
