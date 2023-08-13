@@ -26,7 +26,7 @@ from plotnine import (
 )
 from typing import List, Literal, Optional, Union, Tuple, Dict
 
-from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA, DEFAULT_COLUMNS
+from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_SEP, DEFAULT_SPEC_PAT, DEFAULT_CELLSIGN_ALPHA, DEFAULT_COLUMNS
 from ktplotspy.utils.support import (
     ensure_categorical,
     filter_interaction_and_celltype,
