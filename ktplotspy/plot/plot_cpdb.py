@@ -357,8 +357,6 @@ def plot_cpdb(
         elif cellsign is not None:
             if df.at[i, "cellsign"] < 1:
                 df.at[i, "cellsign"] = DEFAULT_CELLSIGN_ALPHA
-    if interaction_scores is not None:
-        df["interaction_ranking"] = df["interaction_scores"]
 
     df["x_stroke"] = df["x_means"]
 
@@ -409,7 +407,7 @@ def plot_cpdb(
                             fill=colm,
                             size=colm,
                             stroke=stroke,
-                            alpha="interaction_ranking",
+                            alpha="interaction_scores",
                         ),
                     )
                 else:
@@ -423,7 +421,7 @@ def plot_cpdb(
                                 fill=colm,
                                 size=colm,
                                 stroke=stroke,
-                                alpha="interaction_ranking",
+                                alpha="interaction_scores",
                             ),
                         )
                         default_style = True
@@ -438,7 +436,7 @@ def plot_cpdb(
                                 fill="significant",
                                 size=colm,
                                 stroke=stroke,
-                                alpha="interaction_ranking",
+                                alpha="interaction_scores",
                             ),
                         )
             else:
