@@ -30,7 +30,7 @@ post in the issue tracker and I will get back to you.
 Citation
 --------
 
-If you find this useful, please consider citing the following preprint:
+If you find this useful, please cite the following preprint:
 
 .. [Troule2023]  Troulé K, Petryszak R, Prete M, Cranley J, Harasty A, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. (2023)
    *CellPhoneDB v5: inferring cell-cell communication from single-cell multiomics data.*,
