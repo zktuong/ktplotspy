@@ -116,13 +116,11 @@ def plot_cpdb_chord(
     subset_clusters = list(set(flatten([x.split("-") for x in lr_interactions.celltype_group])))
     adata_subset = adata[adata.obs[celltype_key].isin(subset_clusters)].copy()
     interactions = means[
-        ["id_cp_interactions", "interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]
+        ["id_cp_interaction", "interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]
     ].copy()
     interactions["converted"] = [re.sub("-", " ", x) for x in interactions.interacting_pair]
     interactions["converted"] = [re.sub("_", "-", x) for x in interactions.interacting_pair]
-    interactions["use_interaction_name"] = [
-        x + DEFAULT_SEP * 3 + y for x, y in zip(interactions.id_cp_interactions, interactions.converted)
-    ]
+    interactions["use_interaction_name"] = [x + DEFAULT_SEP * 3 + y for x, y in zip(interactions.id_cp_interaction, interactions.converted)]
     lr_interactions["barcode"] = [a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)]
     interactions_subset = interactions[interactions["converted"].isin(list(lr_interactions.interaction_group))].copy()
     # handle complexes gently
