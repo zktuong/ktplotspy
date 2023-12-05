@@ -192,7 +192,7 @@ def plot_cpdb(
         tmp = means_mat.melt(id_vars=means_mat.columns[:col_start])
         direc, classif, is_int = {}, {}, {}
         for _, r in tmp.iterrows():
-            key = r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
+            key = r.id_cp_interaction + DEFAULT_SEP * 3 + r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
             direc[key] = r.directionality
             classif[key] = r.classification
             is_int[key] = r.is_integrin

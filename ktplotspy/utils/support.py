@@ -233,7 +233,7 @@ def prep_table(data: pd.DataFrame) -> pd.DataFrame:
         Table ready for further analysis.
     """
     dat = data.copy()
-    dat.index = make_unique(dat.interacting_pair)
+    dat.index = [x + DEFAULT_SEP * 3 + y for x, y in zip(dat.id_cp_interaction, dat.interacting_pair)]
     dat.columns = [re.sub("\\|", DEFAULT_SEP, col) for col in dat.columns]
     dat.index = [re.sub("_", "-", row) for row in dat.index]
     dat.index = [re.sub("[.]", " ", row) for row in dat.index]
@@ -241,32 +241,32 @@ def prep_table(data: pd.DataFrame) -> pd.DataFrame:
     return dat
 
 
-def make_unique(seq: pd.Series) -> List:
-    """Make unique names.
+# def make_unique(seq: pd.Series) -> List:
+#     """Make unique names.
 
-    Parameters
-    ----------
-    seq : pd.Series
-        Series to convert to unique.
+#     Parameters
+#     ----------
+#     seq : pd.Series
+#         Series to convert to unique.
 
-    Returns
-    -------
-    List
-        List of unique names.
-    """
-    seq = list(seq)
-    not_unique = [k for k, v in Counter(seq).items() if v > 1]  # so we have: ['name', 'zip']
-    # suffix generator dict - e.g., {'name': <my_gen>, 'zip': <my_gen>}
-    suff_gens = dict(zip(not_unique, tee(count(1), len(not_unique))))
-    for idx, s in enumerate(seq):
-        try:
-            suffix = "_" + str(next(suff_gens[s]))
-        except KeyError:
-            # s was unique
-            continue
-        else:
-            seq[idx] += suffix
-    return seq
+#     Returns
+#     -------
+#     List
+#         List of unique names.
+#     """
+#     seq = list(seq)
+#     not_unique = [k for k, v in Counter(seq).items() if v > 1]  # so we have: ['name', 'zip']
+#     # suffix generator dict - e.g., {'name': <my_gen>, 'zip': <my_gen>}
+#     suff_gens = dict(zip(not_unique, tee(count(1), len(not_unique))))
+#     for idx, s in enumerate(seq):
+#         try:
+#             suffix = "_" + str(next(suff_gens[s]))
+#         except KeyError:
+#             # s was unique
+#             continue
+#         else:
+#             seq[idx] += suffix
+#     return seq
 
 
 def sub_pattern(cell_type: str, pattern: str) -> str:
