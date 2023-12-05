@@ -115,13 +115,18 @@ def plot_cpdb_chord(
     # do some name wrangling
     subset_clusters = list(set(flatten([x.split("-") for x in lr_interactions.celltype_group])))
     adata_subset = adata[adata.obs[celltype_key].isin(subset_clusters)].copy()
-    interactions = means[["interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]].copy()
+    interactions = means[
+        ["id_cp_interactions", "interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]
+    ].copy()
     interactions["converted"] = [re.sub("-", " ", x) for x in interactions.interacting_pair]
     interactions["converted"] = [re.sub("_", "-", x) for x in interactions.interacting_pair]
+    interactions["use_interaction_name"] = [
+        x + DEFAULT_SEP * 3 + y for x, y in zip(interactions.id_cp_interactions, interactions.converted)
+    ]
     lr_interactions["barcode"] = [a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)]
     interactions_subset = interactions[interactions["converted"].isin(list(lr_interactions.interaction_group))].copy()
     # handle complexes gently
-    tm0 = {kx: rx.split("_") for kx, rx in interactions_subset.interacting_pair.items()}
+    tm0 = {kx: rx.split("_") for kx, rx in interactions_subset.use_interaction_name.items()}
     if any([len(x) > 2 for x in tm0.values()]):
         complex_id, simple_id = [], []
         for i, j in tm0.items():
@@ -151,11 +156,13 @@ def plot_cpdb_chord(
             columns=["id_a", "id_b"],
             index=_interactions_subset_simp.index,
         )
+        simple_tm0.id_a = [x.split(DEFAULT_SEP * 3)[1] for x in simple_tm0.id_a]
         _interactions_subset_simp = pd.concat([_interactions_subset_simp, simple_tm0], axis=1)
         interactions_subset = pd.concat([_interactions_subset_simp, _interactions_subset], axis=0)
     else:
         tm0 = pd.DataFrame(tm0).T
         tm0.columns = ["id_a", "id_b"]
+        tm0.id_a = [x.split(DEFAULT_SEP * 3)[1] for x in tm0.id_a]
         interactions_subset = pd.concat([interactions_subset, tm0], axis=1)
 
     # keep only useful genes
