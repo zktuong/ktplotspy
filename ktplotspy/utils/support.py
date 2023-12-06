@@ -663,6 +663,7 @@ def generate_df(
     out = []
     for _, (px, rx) in cell_type_grid.iterrows():
         for _, (
+            ici,
             ip,
             ga,
             gb,
@@ -670,6 +671,7 @@ def generate_df(
             pb,
             ra,
             rb,
+            ui,
             cp,
             ia,
             ib,
@@ -677,6 +679,7 @@ def generate_df(
             if ra:
                 if rb:
                     _out = [
+                        ici,
                         ia,
                         ib,
                         ra,
@@ -692,6 +695,7 @@ def generate_df(
                     ]
                 else:
                     _out = [
+                        ici,
                         ia,
                         ib,
                         ra,
@@ -708,6 +712,7 @@ def generate_df(
             else:
                 if rb:
                     _out = [
+                        ici,
                         ia,
                         ib,
                         ra,
@@ -723,6 +728,7 @@ def generate_df(
                     ]
                 else:  # pragma: no cover
                     _out = [
+                        ici,
                         ia,
                         ib,
                         ra,
@@ -740,6 +746,7 @@ def generate_df(
                 pd.DataFrame(
                     _out,
                     index=[
+                        "id_cp_interaction",
                         "ligand",
                         "receptor",
                         "receptor_a",
@@ -763,13 +770,14 @@ def generate_df(
     _df = _df.reset_index(drop=True)
     for i, j in _df.iterrows():
         if (j["receptor_b"]) and not (j["receptor_a"]):
-            lg, rc = j["receptor"], j["ligand"]
+            ici, lg, rc = j["id_cp_interaction"], j["receptor"], j["ligand"]
             con_pair = lg + "-" + rc
             ra, rb = j["receptor_b"], j["receptor_a"]
             px, rx = j["receiver"], j["producer"]
             pre, prf = j["receiver_expression"], j["receiver_fraction"]
             rce, rcf = j["producer_expression"], j["producer_fraction"]
             tos, frs = j["from"], j["to"]
+            _df.at[i, "id_cp_interaction"] = ici
             _df.at[i, "ligand"] = lg
             _df.at[i, "receptor"] = rc
             _df.at[i, "converted_pair"] = con_pair
@@ -783,4 +791,8 @@ def generate_df(
             _df.at[i, "receiver_fraction"] = rcf
             _df.at[i, "from"] = frs
             _df.at[i, "to"] = tos
+        else:
+            ici, lg, rc = j["id_cp_interaction"], j["ligand"], j["receptor"]
+            con_pair = rc + "-" + lg
+            _df.at[i, "converted_pair"] = con_pair
     return _df
