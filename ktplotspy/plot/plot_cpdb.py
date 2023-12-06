@@ -80,6 +80,7 @@ def plot_cpdb(
     scale_alpha_by_interaction_scores: bool = False,
     scale_alpha_by_cellsign: bool = False,
     filter_by_cellsign: bool = False,
+    keep_id_cp_interaction: bool = False,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting CellPhoneDB results as a dot plot.
 
@@ -157,6 +158,8 @@ def plot_cpdb(
         Whether or not to filter the transparency of interactions by the cellsign.
     filter_by_cellsign: bool, optional
         Filter out interactions with a 0 value cellsign.
+    keep_id_cp_interaction: bool, optional
+        Whether to keep the original `id_cp_interaction` value when plotting.
     Returns
     -------
     Union[ggplot, pd.DataFrame]
@@ -192,7 +195,7 @@ def plot_cpdb(
         tmp = means_mat.melt(id_vars=means_mat.columns[:col_start])
         direc, classif, is_int = {}, {}, {}
         for _, r in tmp.iterrows():
-            key = r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
+            key = r.id_cp_interaction + DEFAULT_SEP * 3 + r.interacting_pair.replace("_", "-") + DEFAULT_SEP * 3 + r.variable
             direc[key] = r.directionality
             classif[key] = r.classification
             is_int[key] = r.is_integrin
@@ -384,6 +387,11 @@ def plot_cpdb(
     if return_table:
         return df
     else:
+        # change the labelling of interaction_group
+        if keep_id_cp_interaction:
+            df.interaction_group = [re.sub(DEFAULT_SEP * 3, "_", c) for c in df.interaction_group]
+        else:
+            df.interaction_group = [c.split(DEFAULT_SEP * 3)[1] for c in df.interaction_group]
         # set global figure size
         options.figure_size = figsize
 

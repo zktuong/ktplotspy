@@ -115,13 +115,18 @@ def plot_cpdb_chord(
     # do some name wrangling
     subset_clusters = list(set(flatten([x.split("-") for x in lr_interactions.celltype_group])))
     adata_subset = adata[adata.obs[celltype_key].isin(subset_clusters)].copy()
-    interactions = means[["interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]].copy()
-    interactions["converted"] = [re.sub("-", " ", x) for x in interactions.interacting_pair]
-    interactions["converted"] = [re.sub("_", "-", x) for x in interactions.interacting_pair]
+    interactions = means[
+        ["id_cp_interaction", "interacting_pair", "gene_a", "gene_b", "partner_a", "partner_b", "receptor_a", "receptor_b"]
+    ].copy()
+    interactions["use_interaction_name"] = [
+        x + DEFAULT_SEP * 3 + y for x, y in zip(interactions.id_cp_interaction, interactions.interacting_pair)
+    ]
+    # interactions["converted"] = [re.sub("-", " ", x) for x in interactions.use_interaction_name]
+    interactions["converted"] = [re.sub("_", "-", x) for x in interactions.use_interaction_name]
     lr_interactions["barcode"] = [a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)]
     interactions_subset = interactions[interactions["converted"].isin(list(lr_interactions.interaction_group))].copy()
     # handle complexes gently
-    tm0 = {kx: rx.split("_") for kx, rx in interactions_subset.interacting_pair.items()}
+    tm0 = {kx: rx.split("_") for kx, rx in interactions_subset.use_interaction_name.items()}
     if any([len(x) > 2 for x in tm0.values()]):
         complex_id, simple_id = [], []
         for i, j in tm0.items():
@@ -156,6 +161,7 @@ def plot_cpdb_chord(
     else:
         tm0 = pd.DataFrame(tm0).T
         tm0.columns = ["id_a", "id_b"]
+        tm0.id_a = [x.split(DEFAULT_SEP * 3)[1] for x in tm0.id_a]
         interactions_subset = pd.concat([interactions_subset, tm0], axis=1)
 
     # keep only useful genes
@@ -275,7 +281,7 @@ def plot_cpdb_chord(
             end_size = 1 if end_size < 1 else end_size
             source = (j["producer"], j["start"] - 1, start_size, raxis_range[0] - size)
             destination = (j["receiver"], j["end"] - 1, end_size, raxis_range[0] - size)
-            circle.chord_plot(source, destination, edge_col_dict[lr])
+            circle.chord_plot(source, destination, edge_col_dict[lr] if lr in edge_col_dict else "#f7f7f700")
 
     custom_lines = [Line2D([0], [0], color=val, lw=4) for val in edge_col_dict.values()]
     circle.figure.legend(custom_lines, edge_col_dict.keys(), **legend_params)
