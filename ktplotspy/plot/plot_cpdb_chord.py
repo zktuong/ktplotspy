@@ -281,7 +281,7 @@ def plot_cpdb_chord(
             end_size = 1 if end_size < 1 else end_size
             source = (j["producer"], j["start"] - 1, start_size, raxis_range[0] - size)
             destination = (j["receiver"], j["end"] - 1, end_size, raxis_range[0] - size)
-            circle.chord_plot(source, destination, edge_col_dict[lr])
+            circle.chord_plot(source, destination, edge_col_dict[lr] if lr in edge_col_dict else "#f7f7f700")
 
     custom_lines = [Line2D([0], [0], color=val, lw=4) for val in edge_col_dict.values()]
     circle.figure.legend(custom_lines, edge_col_dict.keys(), **legend_params)
