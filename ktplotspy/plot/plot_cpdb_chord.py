@@ -156,7 +156,6 @@ def plot_cpdb_chord(
             columns=["id_a", "id_b"],
             index=_interactions_subset_simp.index,
         )
-        simple_tm0.id_a = [x.split(DEFAULT_SEP * 3)[1] for x in simple_tm0.id_a]
         _interactions_subset_simp = pd.concat([_interactions_subset_simp, simple_tm0], axis=1)
         interactions_subset = pd.concat([_interactions_subset_simp, _interactions_subset], axis=0)
     else:
