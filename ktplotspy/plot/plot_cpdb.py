@@ -180,7 +180,7 @@ def plot_cpdb(
     pvals_mat = prep_table(data=pvals)
     missing_cols = []
     for col in means_mat.columns:
-        if col not in pval_mat.columns:
+        if col not in pvals_mat.columns:
             missing_cols.append(col)
     if len(missing_cols) > 0:
         epty = np.zeros((pvals_mat.shape[0], len(missing_cols))) + 1
