@@ -3,15 +3,17 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from itertools import product
 from matplotlib.colors import ListedColormap
-from typing import Optional, Union, Dict
+from typing import Optional, Union, Dict, List
 
-from ktplotspy.utils.support import diverging_palette
-from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL
+from ktplotspy.utils.support import diverging_palette, sub_pattern
+from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL, DEFAULT_SPEC_PAT
 
 
 def plot_cpdb_heatmap(
     pvals: pd.DataFrame,
+    cell_types: Optional[List[str]] = None,
     degs_analysis: bool = False,
     log1p_transform: bool = False,
     alpha: float = 0.05,
@@ -25,6 +27,7 @@ def plot_cpdb_heatmap(
     title: str = "",
     return_tables: bool = False,
     symmetrical: bool = True,
+    special_character_regex_pattern: Optional[str] = None,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
     """Plot cellphonedb results as total counts of interactions.
@@ -34,6 +37,8 @@ def plot_cpdb_heatmap(
     adata : AnnData
         `AnnData` object with the `.obs` storing the `celltype_key`.
         The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
+    cell_types : Optional[List[str]], optional
+        List of cell types to include in the heatmap. If `None`, all cell types are included.
     pvals : pd.DataFrame
         Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
     degs_analysis : bool, optional
@@ -62,6 +67,8 @@ def plot_cpdb_heatmap(
         Whether to return the dataframes storing the interaction network.
     symmetrical : bool, optional
         Whether to return the sum of interactions as symmetrical heatmap.
+    special_character_regex_pattern : Optional[str], optional
+        Regular expression pattern to handle special characters from celltype names.
     **kwargs
         Passed to seaborn.clustermap.
 
@@ -71,6 +78,8 @@ def plot_cpdb_heatmap(
     Union[sns.matrix.ClusterGrid, Dict]
         Either heatmap of cellphonedb interactions or dataframe containing the interaction network.
     """
+    if special_character_regex_pattern is None:
+        special_character_regex_pattern = DEFAULT_SPEC_PAT
     all_intr = pvals.copy()
     intr_pairs = all_intr.interacting_pair
     col_start = (
@@ -78,6 +87,16 @@ def plot_cpdb_heatmap(
     )  # in v5, there are 12 columns before the values
     all_int = all_intr.iloc[:, col_start : all_intr.shape[1]].T
     all_int.columns = intr_pairs
+    if cell_types is not None:
+        cell_types = [sub_pattern(cell_type=cell_type, pattern=special_character_regex_pattern) for cell_type in cell_types]
+        cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
+        cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
+        empty_celltypes = list(set(cell_types_comb) ^ set(cell_types_keep))
+        all_int = all_int.loc[cell_types_keep]
+        if len(empty_celltypes) > 0:
+            tmp_ = np.zeros((len(empty_celltypes), all_int.shape[1]))
+            tmp_ = pd.DataFrame(tmp_, index=empty_celltypes, columns=all_int.columns)
+            all_int = pd.concat([all_int, tmp_], axis=0)
     all_count = all_int.melt(ignore_index=False).reset_index()
     if degs_analysis:
         all_count["significant"] = all_count.value == 1
