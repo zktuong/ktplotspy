@@ -7,7 +7,7 @@ from itertools import product
 from matplotlib.colors import ListedColormap
 from typing import Optional, Union, Dict, List
 
-from ktplotspy.utils.support import diverging_palette
+from ktplotspy.utils.support import diverging_palette, sub_pattern
 from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL, DEFAULT_SPEC_PAT
 
 
