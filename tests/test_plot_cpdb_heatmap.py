@@ -71,3 +71,13 @@ def test_plot_cpdb_heatmap_return(adata, pvals):
     for d in dfs:
         assert isinstance(dfs[d], pd.DataFrame)
         assert dfs[d].shape[0] > 0
+
+
+@patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "pvals")
+def test_plot_cpdb_heatmap_celltypes(mock_show, adata, pvals):
+    g = plot_cpdb_heatmap(
+        pvals=pvals,
+        cell_types=["CD4 T cell", "CD8 T cell", "B cell"],
+    )
+    g
