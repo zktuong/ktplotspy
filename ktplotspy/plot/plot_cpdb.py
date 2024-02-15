@@ -173,7 +173,7 @@ def plot_cpdb(
 
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
-    swapr = True if (cell_type1 == ".") or (cell_type2 == ".") else False
+    swapr = False if (cell_type1 == ".") or (cell_type2 == ".") else True
     # prepare data
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
