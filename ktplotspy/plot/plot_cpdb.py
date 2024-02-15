@@ -178,14 +178,26 @@ def plot_cpdb(
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
-    missing_cols = []
+    col_start = (
+        DEFAULT_V5_COL_START if pvals_mat.columns[DEFAULT_CLASS_COL] == "classification" else DEFAULT_COL_START
+    )  # in v5, there are 12 columns before the values
+    missing_cols, missing_rows = [], []
     for col in means_mat.columns:
         if col not in pvals_mat.columns:
             missing_cols.append(col)
+    for row in means_mat.index:
+        if row not in pvals_mat.index:
+            missing_rows.append(row)
     if len(missing_cols) > 0:
         epty = np.zeros((pvals_mat.shape[0], len(missing_cols))) + 1
         missing_df = pd.DataFrame(epty, columns=missing_cols, index=pvals_mat.index)
         pvals_mat = pd.concat([pvals_mat, missing_df], axis=1)
+    if len(missing_rows) > 0:
+        epty = np.zeros((len(missing_rows), pvals_mat.shape[1])) + 1
+        missing_df1 = means_mat.loc[missing_rows, means_mat.columns[:col_start]]
+        missing_df = pd.DataFrame(epty, columns=pvals_mat.columns, index=missing_rows)
+        missing_df.update(missing_df1)
+        pvals_mat = pd.concat([pvals_mat, missing_df], axis=0)
     if (interaction_scores is not None) & (cellsign is not None):
         raise KeyError("Please specify either interaction scores or cellsign, not both.")
 
@@ -193,9 +205,6 @@ def plot_cpdb(
         interaction_scores_mat = prep_table(data=interaction_scores)
     elif cellsign is not None:
         cellsign_mat = prep_table(data=cellsign)
-    col_start = (
-        DEFAULT_V5_COL_START if pvals_mat.columns[DEFAULT_CLASS_COL] == "classification" else DEFAULT_COL_START
-    )  # in v5, there are 12 columns before the values
     if degs_analysis:
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # front load the dictionary construction here
