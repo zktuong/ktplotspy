@@ -173,19 +173,10 @@ def plot_cpdb(
 
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
-    swapr = False if (cell_type1 == ".") or (cell_type2 == ".") else True
     # prepare data
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
-    missing_cols = []
-    for col in means_mat.columns:
-        if col not in pvals_mat.columns:
-            missing_cols.append(col)
-    if len(missing_cols) > 0:
-        epty = np.zeros((pvals_mat.shape[0], len(missing_cols))) + 1
-        missing_df = pd.DataFrame(epty, columns=missing_cols, index=pvals_mat.index)
-        pvals_mat = pd.concat([pvals_mat, missing_df], axis=1)
     if (interaction_scores is not None) & (cellsign is not None):
         raise KeyError("Please specify either interaction scores or cellsign, not both.")
 
@@ -266,10 +257,7 @@ def plot_cpdb(
         )
     cell_type = "|".join(celltype)
     # keep cell types
-    if swapr:
-        ct_columns = [ct for ct in means_mat.columns if re.search(ct, cell_type)]
-    else:
-        ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
+    ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
     # filter
     means_matx = filter_interaction_and_celltype(data=means_mat, genes=query, celltype_pairs=ct_columns)
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
