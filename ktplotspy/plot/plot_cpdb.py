@@ -178,14 +178,6 @@ def plot_cpdb(
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
-    missing_cols = []
-    for col in means_mat.columns:
-        if col not in pvals_mat.columns:
-            missing_cols.append(col)
-    if len(missing_cols) > 0:
-        epty = np.zeros((pvals_mat.shape[0], len(missing_cols))) + 1
-        missing_df = pd.DataFrame(epty, columns=missing_cols, index=pvals_mat.index)
-        pvals_mat = pd.concat([pvals_mat, missing_df], axis=1)
     if (interaction_scores is not None) & (cellsign is not None):
         raise KeyError("Please specify either interaction scores or cellsign, not both.")
 
