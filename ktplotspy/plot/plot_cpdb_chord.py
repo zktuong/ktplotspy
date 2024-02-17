@@ -263,7 +263,7 @@ def plot_cpdb_chord(
             col = None
         else:
             # col = face_col_dict[name] if name in face_col_dict else next(DEFAULT_PAL) # cycle through the default palette
-            col = face_col_dict[name] if name in face_col_dict else "#e7e7e7e"  # or just make them grey?
+            col = face_col_dict[name] if name in face_col_dict else "#e7e7e7"  # or just make them grey?
         arc = Garc(
             arc_id=name,
             size=size,
