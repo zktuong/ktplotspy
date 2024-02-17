@@ -34,6 +34,7 @@ from ktplotspy.utils.settings import (
     DEFAULT_SPEC_PAT,
     DEFAULT_CELLSIGN_ALPHA,
     DEFAULT_COLUMNS,
+    DEFAULT_CPDB_SEP,
 )
 from ktplotspy.utils.support import (
     ensure_categorical,
