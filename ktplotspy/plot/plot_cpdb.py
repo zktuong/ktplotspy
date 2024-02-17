@@ -34,6 +34,7 @@ from ktplotspy.utils.settings import (
     DEFAULT_SPEC_PAT,
     DEFAULT_CELLSIGN_ALPHA,
     DEFAULT_COLUMNS,
+    DEFAULT_CPDB_SEP,
 )
 from ktplotspy.utils.support import (
     ensure_categorical,
@@ -226,7 +227,7 @@ def plot_cpdb(
         if gene_family is not None:
             raise KeyError("Please specify either genes or gene_family, not both.")
         else:
-            query = [i for i in means_mat.interacting_pair if re.search("\\|".join(genes), i)]
+            query = [i for i in means_mat.interacting_pair if re.search(f"\\{DEFAULT_CPDB_SEP}".join(genes), i)]
     metadata = ensure_categorical(meta=metadata, key=celltype_key)
     # prepare regex query for celltypes
     if splitby_key is not None:

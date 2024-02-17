@@ -234,7 +234,7 @@ def prep_table(data: pd.DataFrame) -> pd.DataFrame:
     """
     dat = data.copy()
     dat.index = [x + DEFAULT_SEP * 3 + y for x, y in zip(dat.id_cp_interaction, dat.interacting_pair)]
-    dat.columns = [re.sub("\\" + DEFAULT_CPDB_SEP, DEFAULT_SEP, col) for col in dat.columns]
+    dat.columns = [re.sub(f"\\{DEFAULT_CPDB_SEP}", DEFAULT_SEP, col) for col in dat.columns]
     dat.index = [re.sub("_", "-", row) for row in dat.index]
     dat.index = [re.sub("[.]", " ", row) for row in dat.index]
 
