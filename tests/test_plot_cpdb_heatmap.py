@@ -75,9 +75,9 @@ def test_plot_cpdb_heatmap_return(adata, pvals):
 
 @patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata", "pvals")
-def test_plot_cpdb_heatmap_celltypes(mock_show, adata, pvals):
+def test_plot_cpdb_heatmap_celltypes(mock_show, adata, pvals_v5):
     g = plot_cpdb_heatmap(
-        pvals=pvals,
-        cell_types=["CD4 T cell", "CD8 T cell", "B cell"],
+        pvals=pvals_v5,
+        cell_types=["iEVT", "PV MYH11", "PV STEAP4", "EVT_1"],
     )
     g

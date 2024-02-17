@@ -82,7 +82,7 @@ def plot_cpdb_heatmap(
     )  # in v5, there are 12 columns before the values
     all_int = all_intr.iloc[:, col_start : all_intr.shape[1]].T
     all_int.columns = intr_pairs
-    if cell_types is not None:
+    if cell_types is None:
         cell_types = sorted(list(set([y for z in [x.split(DEFAULT_CPDB_SEP) for x in all_intr.columns[col_start:]] for y in z])))
     cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
     cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
