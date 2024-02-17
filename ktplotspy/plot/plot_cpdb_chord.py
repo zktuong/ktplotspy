@@ -6,13 +6,12 @@ import numpy as np
 import pandas as pd
 
 from collections import defaultdict
-from itertools import combinations
 from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap
 from pycircos import Garc, Gcircle
 from typing import Optional, Tuple, Dict, Union
 
-from ktplotspy.utils.settings import DEFAULT_SEP
+from ktplotspy.utils.settings import DEFAULT_SEP  # DEFAULT_PAL
 from ktplotspy.utils.support import celltype_fraction, celltype_means, find_complex, flatten, generate_df, present
 from ktplotspy.plot import plot_cpdb
 
@@ -260,7 +259,11 @@ def plot_cpdb_chord(
                 face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
     for i, j in tmpdf.iterrows():
         name = j["producer"]
-        col = None if face_col_dict is None else face_col_dict[name]
+        if face_col_dict is None:
+            col = None
+        else:
+            # col = face_col_dict[name] if name in face_col_dict else next(DEFAULT_PAL) # cycle through the default palette
+            col = face_col_dict[name] if name in face_col_dict else "#e7e7e7"  # or just make them grey?
         arc = Garc(
             arc_id=name,
             size=size,

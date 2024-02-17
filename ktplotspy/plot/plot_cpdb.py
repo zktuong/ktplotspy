@@ -34,7 +34,6 @@ from ktplotspy.utils.settings import (
     DEFAULT_SPEC_PAT,
     DEFAULT_CELLSIGN_ALPHA,
     DEFAULT_COLUMNS,
-    DEFAULT_CPDB_SEP,
 )
 from ktplotspy.utils.support import (
     ensure_categorical,
@@ -174,11 +173,24 @@ def plot_cpdb(
 
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
-    swapr = True if (cell_type1 == ".") or (cell_type2 == ".") else False
     # prepare data
     metadata = adata.obs.copy()
     means_mat = prep_table(data=means)
     pvals_mat = prep_table(data=pvals)
+    col_start = (
+        DEFAULT_V5_COL_START if pvals_mat.columns[DEFAULT_CLASS_COL] == "classification" else DEFAULT_COL_START
+    )  # in v5, there are 12 columns before the values
+    if pvals_mat.shape != means_mat.shape:
+        tmp_pvals_mat = pd.DataFrame(index=means_mat.index, columns=means_mat.columns)
+        # Copy the values from means_mat to new_df
+        tmp_pvals_mat.iloc[:, :col_start] = means_mat.iloc[:, :col_start]
+        tmp_pvals_mat.update(pvals_mat)
+        if degs_analysis:
+            tmp_pvals_mat.fillna(0, inplace=True)
+        else:
+            tmp_pvals_mat.fillna(1, inplace=True)
+        pvals_mat = tmp_pvals_mat.copy()
+
     if (interaction_scores is not None) & (cellsign is not None):
         raise KeyError("Please specify either interaction scores or cellsign, not both.")
 
@@ -186,9 +198,6 @@ def plot_cpdb(
         interaction_scores_mat = prep_table(data=interaction_scores)
     elif cellsign is not None:
         cellsign_mat = prep_table(data=cellsign)
-    col_start = (
-        DEFAULT_V5_COL_START if pvals_mat.columns[DEFAULT_CLASS_COL] == "classification" else DEFAULT_COL_START
-    )  # in v5, there are 12 columns before the values
     if degs_analysis:
         pvals_mat.iloc[:, col_start : pvals_mat.shape[1]] = 1 - pvals_mat.iloc[:, col_start : pvals_mat.shape[1]]
     # front load the dictionary construction here
@@ -259,10 +268,7 @@ def plot_cpdb(
         )
     cell_type = "|".join(celltype)
     # keep cell types
-    if swapr:
-        ct_columns = [ct for ct in means_mat.columns if re.search(ct, cell_type)]
-    else:
-        ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
+    ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
     # filter
     means_matx = filter_interaction_and_celltype(data=means_mat, genes=query, celltype_pairs=ct_columns)
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
@@ -384,7 +390,8 @@ def plot_cpdb(
         df["is_integrin"] = [is_int[i] for i in df.index]
         df["directionality"] = [direc[i] for i in df.index]
         df["classification"] = [classif[i] for i in df.index]
-
+    if df.shape[0] == 0:
+        raise ValueError("No significant results found.")
     if return_table:
         return df
     else:
