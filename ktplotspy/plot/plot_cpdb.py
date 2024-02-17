@@ -268,7 +268,7 @@ def plot_cpdb(
         )
     cell_type = "|".join(celltype)
     # keep cell types
-    ct_columns = [ct for ct in means_mat.columns if re.search(ct, cell_type)]
+    ct_columns = [ct for ct in means_mat.columns if re.search(cell_type, ct)]
     # filter
     means_matx = filter_interaction_and_celltype(data=means_mat, genes=query, celltype_pairs=ct_columns)
     pvals_matx = filter_interaction_and_celltype(data=pvals_mat, genes=query, celltype_pairs=ct_columns)
