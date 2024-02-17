@@ -1,5 +1,8 @@
 #!/usr/bin/env python
+# import matplotlib.pyplot as plt
 import pkg_resources
+
+# from itertools import cycle
 
 try:
     __version__ = pkg_resources.get_distribution("ktplotspy").version
@@ -14,3 +17,4 @@ DEFAULT_V5_COL_START = 13
 DEFAULT_COL_START = 11
 DEFAULT_CLASS_COL = 12
 DEFAULT_CPDB_SEP = "|"
+# DEFAULT_PAL = cycle(plt.cm.tab20.colors)
