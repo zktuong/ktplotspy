@@ -7,8 +7,8 @@ from itertools import product
 from matplotlib.colors import ListedColormap
 from typing import Optional, Union, Dict, List
 
-from ktplotspy.utils.support import diverging_palette, sub_pattern
-from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL, DEFAULT_SPEC_PAT
+from ktplotspy.utils.support import diverging_palette
+from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL, DEFAULT_CPDB_SEP
 
 
 def plot_cpdb_heatmap(
@@ -27,7 +27,6 @@ def plot_cpdb_heatmap(
     title: str = "",
     return_tables: bool = False,
     symmetrical: bool = True,
-    special_character_regex_pattern: Optional[str] = None,
     **kwargs
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
     """Plot cellphonedb results as total counts of interactions.
@@ -67,8 +66,6 @@ def plot_cpdb_heatmap(
         Whether to return the dataframes storing the interaction network.
     symmetrical : bool, optional
         Whether to return the sum of interactions as symmetrical heatmap.
-    special_character_regex_pattern : Optional[str], optional
-        Regular expression pattern to handle special characters from celltype names.
     **kwargs
         Passed to seaborn.clustermap.
 
@@ -78,8 +75,6 @@ def plot_cpdb_heatmap(
     Union[sns.matrix.ClusterGrid, Dict]
         Either heatmap of cellphonedb interactions or dataframe containing the interaction network.
     """
-    if special_character_regex_pattern is None:
-        special_character_regex_pattern = DEFAULT_SPEC_PAT
     all_intr = pvals.copy()
     intr_pairs = all_intr.interacting_pair
     col_start = (
@@ -88,9 +83,7 @@ def plot_cpdb_heatmap(
     all_int = all_intr.iloc[:, col_start : all_intr.shape[1]].T
     all_int.columns = intr_pairs
     if cell_types is not None:
-        cell_types = [sub_pattern(cell_type=cell_type, pattern=special_character_regex_pattern) for cell_type in cell_types]
-    else:
-        cell_types = sorted(list(set([y for z in [x.split("|") for x in all_intr.columns[col_start:]] for y in z])))
+        cell_types = sorted(list(set([y for z in [x.split(DEFAULT_CPDB_SEP) for x in all_intr.columns[col_start:]] for y in z])))
     cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
     cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
     empty_celltypes = list(set(cell_types_comb) ^ set(cell_types_keep))
