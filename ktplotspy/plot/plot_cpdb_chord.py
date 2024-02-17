@@ -11,7 +11,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from pycircos import Garc, Gcircle
 from typing import Optional, Tuple, Dict, Union
 
-from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_PAL
+from ktplotspy.utils.settings import DEFAULT_SEP  # DEFAULT_PAL
 from ktplotspy.utils.support import celltype_fraction, celltype_means, find_complex, flatten, generate_df, present
 from ktplotspy.plot import plot_cpdb
 
