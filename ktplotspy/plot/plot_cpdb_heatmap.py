@@ -89,14 +89,18 @@ def plot_cpdb_heatmap(
     all_int.columns = intr_pairs
     if cell_types is not None:
         cell_types = [sub_pattern(cell_type=cell_type, pattern=special_character_regex_pattern) for cell_type in cell_types]
-        cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
-        cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
-        empty_celltypes = list(set(cell_types_comb) ^ set(cell_types_keep))
-        all_int = all_int.loc[cell_types_keep]
-        if len(empty_celltypes) > 0:
-            tmp_ = np.zeros((len(empty_celltypes), all_int.shape[1]))
-            tmp_ = pd.DataFrame(tmp_, index=empty_celltypes, columns=all_int.columns)
-            all_int = pd.concat([all_int, tmp_], axis=0)
+    else:
+        cell_types = sorted(list(set([y for z in [x.split("|") for x in all_intr.columns[col_start:]] for y in z])))
+    cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
+    cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
+    empty_celltypes = list(set(cell_types_comb) ^ set(cell_types_keep))
+    all_int = all_int.loc[cell_types_keep]
+    if len(empty_celltypes) > 0:
+        tmp_ = np.zeros((len(empty_celltypes), all_int.shape[1]))
+        if not degs_analysis:
+            tmp_ += 1
+        tmp_ = pd.DataFrame(tmp_, index=empty_celltypes, columns=all_int.columns)
+        all_int = pd.concat([all_int, tmp_], axis=0)
     all_count = all_int.melt(ignore_index=False).reset_index()
     if degs_analysis:
         all_count["significant"] = all_count.value == 1
