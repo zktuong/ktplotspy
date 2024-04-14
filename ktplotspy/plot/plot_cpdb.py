@@ -81,6 +81,7 @@ def plot_cpdb(
     scale_alpha_by_cellsign: bool = False,
     filter_by_cellsign: bool = False,
     keep_id_cp_interaction: bool = False,
+    result_precision: int = 3,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting CellPhoneDB results as a dot plot.
 
@@ -160,6 +161,8 @@ def plot_cpdb(
         Filter out interactions with a 0 value cellsign.
     keep_id_cp_interaction: bool, optional
         Whether to keep the original `id_cp_interaction` value when plotting.
+    result_precision: int, optional
+        Sets integer value for decimal points of p_value, default to 3
     Returns
     -------
     Union[ggplot, pd.DataFrame]
@@ -334,6 +337,9 @@ def plot_cpdb(
     df_pvals.columns = DEFAULT_COLUMNS + ["pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
+    # change the decimal points
+    if df.at[i, "pvals"] == 0:
+        df.at[i, "pvals"] = 1**-result_precision
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
