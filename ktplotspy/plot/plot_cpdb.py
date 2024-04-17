@@ -363,7 +363,7 @@ def plot_cpdb(
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
             if df.at[i, "pvals"] == 0:
-                df.at[i, "pvals"] = 0.001
+                df.at[i, "pvals"] = 1**-result_precision
         if df.at[i, "pvals"] >= alpha:
             if keep_significant_only:
                 df.at[i, "y_means"] = np.nan
