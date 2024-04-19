@@ -89,7 +89,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          directory: ./coverage/reports/
           env_vars: ${{ format('OS={0},PYTHON={1}', matrix.config.os, matrix.config.python-version) }}
           flags: unittests
           name: codecov-umbrella
