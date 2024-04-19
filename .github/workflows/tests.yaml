@@ -85,15 +85,14 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: matrix.config.os == 'ubuntu-latest' && matrix.config.python-version == '3.10' && github.actor != 'dependabot[bot]' &&  github.actor == 'zktuong'
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
-          # token: ${{ secrets.CODECOV_TOKEN }}
-          token: 2fd685ad-8bb4-4ad2-b017-e17824c7c6e6
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
           directory: ./coverage/reports/
           env_vars: ${{ format('OS={0},PYTHON={1}', matrix.config.os, matrix.config.python-version) }}
           flags: unittests
           name: codecov-umbrella
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           path_to_write_report: ./coverage/codecov_report.txt
           verbose: true
