@@ -81,6 +81,7 @@ def plot_cpdb(
     scale_alpha_by_cellsign: bool = False,
     filter_by_cellsign: bool = False,
     keep_id_cp_interaction: bool = False,
+    result_precision: int = 3,
 ) -> Union[ggplot, pd.DataFrame]:
     """Plotting CellPhoneDB results as a dot plot.
 
@@ -160,6 +161,8 @@ def plot_cpdb(
         Filter out interactions with a 0 value cellsign.
     keep_id_cp_interaction: bool, optional
         Whether to keep the original `id_cp_interaction` value when plotting.
+    result_precision: int, optional
+        Sets integer value for decimal points of p_value, default to 3
     Returns
     -------
     Union[ggplot, pd.DataFrame]
@@ -357,7 +360,7 @@ def plot_cpdb(
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
             if df.at[i, "pvals"] == 0:
-                df.at[i, "pvals"] = 0.001
+                df.at[i, "pvals"] = 10**-result_precision
         if df.at[i, "pvals"] >= alpha:
             if keep_significant_only:
                 df.at[i, "y_means"] = np.nan
