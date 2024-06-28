@@ -337,9 +337,6 @@ def plot_cpdb(
     df_pvals.columns = DEFAULT_COLUMNS + ["pvals"]
     df.celltype_group = [re.sub(DEFAULT_SEP, "-", c) for c in df.celltype_group]
     df["pvals"] = df_pvals["pvals"]
-    # change the decimal points
-    if df.at[i, "pvals"] == 0:
-        df.at[i, "pvals"] = 10**-result_precision
     if interaction_scores is not None:
         df_interaction_scores = interaction_scores_matx.melt(ignore_index=False).reset_index()
         df_interaction_scores.index = df_interaction_scores["index"] + DEFAULT_SEP * 3 + df_interaction_scores["variable"]
@@ -363,7 +360,7 @@ def plot_cpdb(
         if df.at[i, "pvals"] < alpha:
             df.at[i, "x_means"] = np.nan
             if df.at[i, "pvals"] == 0:
-                df.at[i, "pvals"] = 1**-result_precision
+                df.at[i, "pvals"] = 10**-result_precision
         if df.at[i, "pvals"] >= alpha:
             if keep_significant_only:
                 df.at[i, "y_means"] = np.nan
