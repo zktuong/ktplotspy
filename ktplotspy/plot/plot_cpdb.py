@@ -60,8 +60,9 @@ def plot_cpdb(
     splitby_key: Optional[str] = None,
     alpha: float = 0.05,
     keep_significant_only: bool = True,
-    genes: Optional[str] = None,
-    gene_family: Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]] = None,
+    genes: Optional[Union[List[str], str]] = None,
+    gene_family: Optional[Union[List[str], Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]]] = None,
+    interacting_pairs: Optional[Union[List[str], str]] = None,
     custom_gene_family: Optional[Dict[str, List[str]]] = None,
     standard_scale: bool = True,
     cluster_rows: bool = True,
@@ -72,7 +73,7 @@ def plot_cpdb(
     highlight_col: str = "#d62728",
     highlight_size: Optional[int] = None,
     special_character_regex_pattern: Optional[str] = None,
-    exclude_interactions: Optional[Union[List, str]] = None,
+    exclude_interactions: Optional[Union[List[str], str]] = None,
     title: str = "",
     return_table: bool = False,
     figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
@@ -114,10 +115,12 @@ def plot_cpdb(
         P value threshold value for significance.
     keep_significant_only : bool, optional
         Whether or not to trim to significant (p<0.05) hits.
-    genes : Optional[str], optional
+    genes : Optional[Union[List[str], str]], optional
         If provided, will attempt to plot only interactions containing the specified gene(s).
-    gene_family : Optional[Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]], optional
+    gene_family : Optional[Union[List[str], Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]]], optional
         If provided, will attempt to plot a predetermined set of chemokines or genes associated with Th1, Th2, Th17, Treg, costimulatory or coinhibitory molecules.
+    interacting_pairs : Optional[Union[List[str], str]], optional
+        If provided, will attempt to plot only interactions containing the specified interacting pair(s). Ignores `genes` and `gene_family` if provided.
     custom_gene_family : Optional[Dict[str, List[str]]], optional
         If provided, will update the gene_family dictionary with this custom dictionary.
         Both `gene_family` (name of the custom family) and `custom_gene_family` (dictionary holding this new family)
@@ -215,31 +218,37 @@ def plot_cpdb(
     # ensure celltypes are ok
     cell_type1 = sub_pattern(cell_type=cell_type1, pattern=special_character_regex_pattern)
     cell_type2 = sub_pattern(cell_type=cell_type2, pattern=special_character_regex_pattern)
-    # check for query
-    if genes is None:
-        if gene_family is not None:
-            query_group = prep_query_group(means_mat, custom_gene_family)
-            if isinstance(gene_family, list):
-                query = []
-                for gf in gene_family:
-                    if gf.lower() in query_group:
-                        for gfg in query_group[gf.lower()]:
-                            query.append(gfg)
+    if interacting_pairs is None:
+        # check for query
+        if genes is None:
+            if gene_family is not None:
+                query_group = prep_query_group(means_mat, custom_gene_family)
+                if isinstance(gene_family, list):
+                    query = []
+                    for gf in gene_family:
+                        if gf.lower() in query_group:
+                            for gfg in query_group[gf.lower()]:
+                                query.append(gfg)
+                        else:
+                            raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                    query = list(set(query))
+                else:
+                    if gene_family.lower() in query_group:
+                        query = query_group[gene_family.lower()]
                     else:
                         raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
-                query = list(set(query))
             else:
-                if gene_family.lower() in query_group:
-                    query = query_group[gene_family.lower()]
-                else:
-                    raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
-        else:
-            query = [i for i in means_mat.interacting_pair if re.search("", i)]
-    elif genes is not None:
-        if gene_family is not None:
-            raise KeyError("Please specify either genes or gene_family, not both.")
-        else:
-            query = [i for i in means_mat.interacting_pair if re.search("|".join(genes), i)]
+                query = [i for i in means_mat.interacting_pair if re.search("", i)]
+        elif genes is not None:
+            if gene_family is not None:
+                raise KeyError("Please specify either genes or gene_family, not both.")
+            else:
+                query = [i for i in means_mat.interacting_pair if re.search("|".join(genes), i)]
+    else:
+        # ensure that we convert any hyperlinks to underscores
+        interacting_pairs = interacting_pairs if isinstance(interacting_pairs, list) else [interacting_pairs]
+        interacting_pairs = [re.sub("-", "_", i) for i in interacting_pairs]
+        query = interacting_pairs
     metadata = ensure_categorical(meta=metadata, key=celltype_key)
     # prepare regex query for celltypes
     if splitby_key is not None:
