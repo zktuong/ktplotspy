@@ -327,6 +327,30 @@ def test_plot_exclude(mock_show, adata, means, pvals, exclude):
 
 
 @patch("matplotlib.pyplot.show")
+@pytest.mark.usefixtures("adata", "means", "pvals")
+@pytest.mark.parametrize(
+    "int_pair",
+    [
+        "CXCL13-CXCR5",
+        ["CXCL13-CXCR5"],
+        "CXCL13_CXCR5",
+        ["CXCL13_CXCR5"],
+    ],
+)
+def test_plot_interacting_pairs(mock_show, adata, means, pvals, int_pair):
+    g = plot_cpdb(
+        adata=adata,
+        cell_type1="B cell",
+        cell_type2="CD4T cell",
+        means=means,
+        pvals=pvals,
+        celltype_key="celltype",
+        interacting_pairs=int_pair,
+    )
+    g
+
+
+@patch("matplotlib.pyplot.show")
 @pytest.mark.usefixtures("adata_v5", "means_v5", "pvals_v5")
 def test_plot_cpdb_v5_interaction_min(mock_show, adata_v5, means_v5, pvals_v5, interaction_scores_v5):
     g = plot_cpdb(
