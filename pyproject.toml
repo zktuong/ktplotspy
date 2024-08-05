@@ -34,7 +34,7 @@ python-circos = "^0.3.0"
 anndata = { optional = true, version = ">=0.7.6,<0.10.0" }
 black = { optional = true, version = "*" }
 pytest-cov = { optional = true, version = "*" }
-sphinx = { optional = true, version = "<7" }                         # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
+sphinx = { optional = true, version = "<8" }                         # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
 nbsphinx = { optional = true, version = "<=0.9.4" }
 sphinx-autodoc-typehints = { optional = true, version = "<=1.23.0" }
 sphinx_rtd_theme = { optional = true, version = "<=2.0.0" }
