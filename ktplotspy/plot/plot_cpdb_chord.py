@@ -192,7 +192,8 @@ def plot_cpdb_chord(
         zgenes = list(set(decon_subset_expr.index))
         for ct, adat in adata_list_alt.items():
             for zg in zgenes:
-                cellfrac[ct][zg] = np.mean(adat[:, adata.var_names.isin(zg.split("_"))].X > 0)
+                zg_mask = adata.var_names.isin(zg.split("_"))
+                cellfrac[ct][zg] = np.mean(adat[:, zg_mask].X > 0) if np.sum(zg_mask) > 0 else 0
         decon_subset_fraction = pd.DataFrame(cellfrac)
         expr_df = pd.concat([adata_list2, decon_subset_expr])
         fraction_df = pd.concat([adata_list3, decon_subset_fraction])
