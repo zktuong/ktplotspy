@@ -11,7 +11,7 @@ except ImportError:  # pragma: no cover
 from collections import Counter
 from itertools import count, tee
 from matplotlib.colors import ListedColormap
-from scipy.sparse import csr_matrix
+from scipy.sparse import issparse
 from typing import Dict, List, Optional
 
 
@@ -538,13 +538,13 @@ def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
         mean expression.
     """
     if layer is None:
-        if isinstance(adata.X, csr_matrix):
-            return np.mean(adata.X.toarray(), axis=0)
+        if issparse(adata.X):
+            return adata.X.mean(axis=0).A1
         else:  # assume it's numpy array
             return np.mean(adata.X, axis=0)  # pragma: no cover
     else:
-        if isinstance(adata.layers[layer], csr_matrix):
-            return np.mean(adata.layers[layer].toarray(), axis=0)
+        if issparse(adata.layers[layer]):
+            return adata.layers[layer].mean(axis=0).A1
         else:
             return np.mean(adata.layers[layer], axis=0)
 
@@ -565,13 +565,13 @@ def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarr
         non-zero expression fraction
     """
     if layer is None:
-        if isinstance(adata.X, csr_matrix):
-            return np.mean(adata.X.toarray() > 0, axis=0)
+        if issparse(adata.X):
+            return np.mean(adata.X > 0, axis=0).A1
         else:  # assume it's numpy array
             return np.mean(adata.X > 0, axis=0)  # pragma: no cover
     else:
-        if isinstance(adata.layers[layer], csr_matrix):
-            return np.mean(adata.layers[layer].toarray() > 0, axis=0)
+        if issparse(adata.layers[layer]):
+            return np.mean(adata.layers[layer] > 0, axis=0).A1
         else:
             return np.mean(adata.layers[layer] > 0, axis=0)
 
