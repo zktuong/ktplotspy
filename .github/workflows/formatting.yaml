@@ -23,11 +23,11 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
 
-      - name: Install black
-        run: python -m pip install black
-
-      - name: Run black
-        run: black --config pyproject.toml --check .
+      - name: Black
+        uses: psf/black@stable
+        with:
+          options: "--config pyproject.toml --check"
+          src: "."
 
   docstring:
     name: Check docstring compliance.
@@ -40,8 +40,5 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
 
-      - name: Install interrogate
-        run: python -m pip install interrogate
-
-      - name: Run interrogate
-        run: interrogate .
+      - name: Interrogate
+        uses: JackMcKew/python-interrogate-check@main
