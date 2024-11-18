@@ -37,7 +37,7 @@ pytest-cov = { optional = true, version = "*" }
 sphinx = { optional = true, version = "<8" }                         # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
 nbsphinx = { optional = true, version = "<=0.9.5" }
 sphinx-autodoc-typehints = { optional = true, version = "<=1.23.0" }
-sphinx_rtd_theme = { optional = true, version = "<=2.0.0" }
+sphinx_rtd_theme = { optional = true, version = "<=3.0.2" }
 readthedocs-sphinx-ext = { optional = true, version = "<=2.2.5" }
 recommonmark = { optional = true, version = "<=0.7.1" }
 
