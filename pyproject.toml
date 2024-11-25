@@ -35,7 +35,7 @@ setuptools = "*"
 anndata = { optional = true, version = ">=0.7.6,<0.11.2" }
 black = { optional = true, version = "*" }
 pytest-cov = { optional = true, version = "*" }
-sphinx = { optional = true, version = "<8" }                        # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
+sphinx = { optional = true, version = "<9" }                        # see issue at https://github.com/readthedocs/readthedocs.org/issues/10279
 nbsphinx = { optional = true, version = "<=0.9.5" }
 sphinx-autodoc-typehints = { optional = true, version = "<=2.3.0" }
 sphinx_rtd_theme = { optional = true, version = "<=3.0.2" }
