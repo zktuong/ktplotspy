@@ -62,15 +62,20 @@ nbsphinx_prolog = """
 
    <style>
        .nbsphinx-output-cell {
-           overflow-x: auto;  /* Enable horizontal scrolling */
-           white-space: nowrap;  /* Prevent line breaks */
+           overflow-x: auto !important;
+           white-space: nowrap !important;
+           max-width: 100%;
        }
        .nbsphinx-output img {
-           display: inline-block;  /* Ensure images behave well in scrollable areas */
+           max-width: none !important;
+           display: inline-block;
+       }
+       .nbsphinx-code-cell {
+           overflow-x: auto !important;
        }
    </style>
 """
 
 
-def setup(app):
-    app.add_css_file("style.css")
+# def setup(app):
+#     app.add_css_file("style.css")
