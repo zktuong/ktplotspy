@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 import re
-import matplotlib.pyplot as plt
+from collections import defaultdict
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
-from collections import defaultdict
-from matplotlib.lines import Line2D
 from matplotlib.colors import LinearSegmentedColormap
+from matplotlib.lines import Line2D
 from pycircos import Garc, Gcircle
-from typing import Optional, Tuple, Dict, Union
 
-from ktplotspy.utils.settings import DEFAULT_SEP  # DEFAULT_PAL
-from ktplotspy.utils.support import celltype_fraction, celltype_means, find_complex, flatten, generate_df, present
 from ktplotspy.plot import plot_cpdb
+from ktplotspy.utils.settings import DEFAULT_SEP  # DEFAULT_PAL
+from ktplotspy.utils.support import celltype_fraction, celltype_means, find_complex, flatten, generate_df
 
 
 def plot_cpdb_chord(
@@ -22,20 +20,20 @@ def plot_cpdb_chord(
     pvals: pd.DataFrame,
     deconvoluted: pd.DataFrame,
     celltype_key: str,
-    face_col_dict: Optional[Dict[str, str]] = None,
-    edge_col_dict: Optional[Dict[str, str]] = None,
+    face_col_dict: dict[str, str] | None = None,
+    edge_col_dict: dict[str, str] | None = None,
     edge_cmap: LinearSegmentedColormap = plt.cm.nipy_spectral,
     remove_self: bool = True,
-    gap: Union[int, float] = 2,
-    scale_lw: Union[int, float] = 10,
-    size: Union[int, float] = 50,
-    interspace: Union[int, float] = 2,
-    raxis_range: Tuple[int, int] = (950, 1000),
-    labelposition: Union[int, float] = 80,
+    gap: int | float = 2,
+    scale_lw: int | float = 10,
+    size: int | float = 50,
+    interspace: int | float = 2,
+    raxis_range: tuple[int, int] = (950, 1000),
+    labelposition: int | float = 80,
     label_visible: bool = True,
-    figsize: Tuple[Union[int, float], Union[int, float]] = (8, 8),
-    legend_params: Dict = {"loc": "center left", "bbox_to_anchor": (1, 1), "frameon": False},
-    layer: Optional[str] = None,
+    figsize: tuple[int | float, int | float] = (8, 8),
+    legend_params: dict = {"loc": "center left", "bbox_to_anchor": (1, 1), "frameon": False},
+    layer: str | None = None,
     **kwargs,
 ) -> Gcircle:
     """Plotting cellphonedb results as a chord diagram.
@@ -54,42 +52,42 @@ def plot_cpdb_chord(
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
-    face_col_dict : Optional[Dict[str, str]], optional
+    face_col_dict : dict[str, str] | None, optional
         dictionary of celltype : face colours.
         If not provided, will try and use `.uns` from `adata` if correct slot is present.
-    edge_col_dict : Optional[Dict[str, str]], optional
+    edge_col_dict : dict[str, str] | None, optional
         Dictionary of interactions : edge colours. Otherwise, will use edge_cmap option.
     edge_cmap : LinearSegmentedColormap, optional
         a `LinearSegmentedColormap` to generate edge colors.
     remove_self : bool, optional
         whether to remove self edges.
-    gap : Union[int, float], optional
+    gap : int | float, optional
         relative size of gaps between edges on arc.
-    scale_lw : Union[int, float], optional
+    scale_lw : int | float, optional
         numeric value to scale width of lines.
-    size : Union[int, float], optional
+    size : int | float, optional
         Width of the arc section. If record is provided, the value is
         instead set by the sequence length of the record. In reality
         the actual arc section width in the resultant circle is determined
         by the ratio of size to the combined sum of the size and interspace
         values of the Garc class objects in the Gcircle class object.
-    interspace : Union[int, float], optional
+    interspace : int | float, optional
         Distance angle (deg) to the adjacent arc section in clockwise
         sequence. The actual interspace size in the circle is determined by
         the actual arc section width in the resultant circle is determined
         by the ratio of size to the combined sum of the size and interspace
         values of the Garc class objects in the Gcircle class object.
-    raxis_range : Tuple[int, int], optional
+    raxis_range : tuple[int, int], optional
         Radial axis range where line plot is drawn.
-    labelposition : Union[int, float], optional
+    labelposition : int | float, optional
         Relative label height from the center of the arc section.
     label_visible : bool, optional
         Font size of the label. The default is 10.
-    figsize : Tuple[Union[int, float], Union[int, float]], optional
+    figsize : tuple[int | float, int | float], optional
         size of figure.
-    legend_params : Dict, optional
+    legend_params : dict, optional
         additional arguments for `plt.legend`.
-    layer : Optional[str], optional
+    layer : str | None, optional
         slot in `AnnData.layers` to access. If `None`, uses `.X`.
     **kwargs
         passed to `plot_cpdb`.
@@ -234,7 +232,7 @@ def plot_cpdb_chord(
     celltype_end_dict = {r: k + gap for k, r in enumerate(celltypes)}
     interactions = sorted(list(set(tmpdf["interaction_celltype"])))
     interaction_start_dict = {r: k * gap for k, r in enumerate(interactions)}
-    interaction_end_dict = {r: k + gap for k, r in enumerate(interactions)}
+    # interaction_end_dict = {r: k + gap for k, r in enumerate(interactions)}
     tmpdf["from"] = [celltype_start_dict[x] for x in tmpdf.producer]
     tmpdf["to"] = [celltype_end_dict[x] for x in tmpdf.receiver]
     tmpdf["interaction_value"] = [
@@ -258,7 +256,7 @@ def plot_cpdb_chord(
                 face_col_dict = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
             else:
                 face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
-    for i, j in tmpdf.iterrows():
+    for _, j in tmpdf.iterrows():
         name = j["producer"]
         if face_col_dict is None:
             col = None
@@ -276,7 +274,7 @@ def plot_cpdb_chord(
         )
         circle.add_garc(arc)
     circle.set_garcs(-180, 180)
-    for i, j in tmpdf.iterrows():
+    for _, j in tmpdf.iterrows():
         if pd.notnull(j["interaction_value"]):
             lr = j["converted_pair"]
             start_size = j["start"] + j["interaction_value"] / scale_lw

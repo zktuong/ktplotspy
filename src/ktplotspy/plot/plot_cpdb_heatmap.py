@@ -1,19 +1,18 @@
 #!/usr/bin/env python
+from itertools import product
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
-
-from itertools import product
 from matplotlib.colors import ListedColormap
-from typing import Optional, Union, Dict, List
 
+from ktplotspy.utils.settings import DEFAULT_CLASS_COL, DEFAULT_COL_START, DEFAULT_CPDB_SEP, DEFAULT_V5_COL_START
 from ktplotspy.utils.support import diverging_palette
-from ktplotspy.utils.settings import DEFAULT_V5_COL_START, DEFAULT_COL_START, DEFAULT_CLASS_COL, DEFAULT_CPDB_SEP
 
 
 def plot_cpdb_heatmap(
     pvals: pd.DataFrame,
-    cell_types: Optional[List[str]] = None,
+    cell_types: list[str] | None = None,
     degs_analysis: bool = False,
     log1p_transform: bool = False,
     alpha: float = 0.05,
@@ -23,13 +22,13 @@ def plot_cpdb_heatmap(
     low_col: str = "#104e8b",
     mid_col: str = "#ffdab9",
     high_col: str = "#8b0a50",
-    cmap: Optional[Union[str, ListedColormap]] = None,
+    cmap: str | ListedColormap | None = None,
     title: str = "",
     return_tables: bool = False,
     symmetrical: bool = True,
     default_sep: str = DEFAULT_CPDB_SEP,
     **kwargs,
-) -> Union[sns.matrix.ClusterGrid, Dict]:
+) -> sns.matrix.ClusterGrid | dict:
     """Plot cellphonedb results as total counts of interactions.
 
     Parameters
@@ -37,7 +36,7 @@ def plot_cpdb_heatmap(
     adata : AnnData
         `AnnData` object with the `.obs` storing the `celltype_key`.
         The `.obs_names` must match the first column of the input `meta.txt` used for `cellphonedb`.
-    cell_types : Optional[List[str]], optional
+    cell_types : list[str] | None, optional
         List of cell types to include in the heatmap. If `None`, all cell types are included.
     pvals : pd.DataFrame
         Dataframe corresponding to `pvalues.txt` or `relevant_interactions.txt` from cellphonedb.
@@ -75,7 +74,7 @@ def plot_cpdb_heatmap(
 
     Returns
     -------
-    Union[sns.matrix.ClusterGrid, Dict]
+    sns.matrix.ClusterGrid | dict
         Either heatmap of cellphonedb interactions or dataframe containing the interaction network.
     """
     all_intr = pvals.copy()
