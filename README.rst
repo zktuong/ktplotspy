@@ -51,7 +51,7 @@ as well, as github repositories. Also leave a star at the
 .. |Master| image:: https://byob.yarr.is/zktuong/ktplotspy/version
    :target: https://github.com/zktuong/ktplotspy/tree/master
 .. |MasterTest| image:: https://github.com/zktuong/ktplotspy/workflows/tests/badge.svg?branch=master
-   :target: https://github.com/zktuong/ktplotspy/actions/workflows/tests.yml
+   :target: https://github.com/zktuong/ktplotspy/actions/workflows/tests.yaml
 .. |CodeCov| image:: https://codecov.io/gh/zktuong/ktplotspy/branch/master/graph/badge.svg?token=661BMU1FBO
    :target: https://codecov.io/gh/zktuong/ktplotspy
 .. |logo| image:: docs/notebooks/logo.png
