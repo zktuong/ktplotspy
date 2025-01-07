@@ -1,3 +1,9 @@
 .wy-nav-content {
     max-width: none;
  }
+
+ .nbsphinx-code-cell, .nbsphinx-output-cell {
+    overflow-x: auto;  /* Horizontal scrolling when needed */
+    max-width: 100%;   /* Don’t exceed the container width */
+    box-sizing: border-box;  /* Include padding and border in the width */
+}
