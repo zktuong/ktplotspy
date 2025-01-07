@@ -62,7 +62,7 @@ jobs:
       - name: Test build, unit tests
         run: |
           pixi run -e ${{ matrix.environment }} test
-          
+
       - name: Show coverage
         if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313'
         run: |
