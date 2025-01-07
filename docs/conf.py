@@ -57,6 +57,14 @@ napoleon_use_param = False
 autodoc_member_order = "bysource"
 autosummary_generate = True
 
+nbsphinx_prolog = """
+.. raw:: html
+
+   <style>
+       img {max-width: 100%; height: auto;}
+   </style>
+"""
+
 
 def setup(app):
     app.add_css_file("style.css")
