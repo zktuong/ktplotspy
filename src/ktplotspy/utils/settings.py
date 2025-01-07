@@ -1,13 +1,7 @@
 #!/usr/bin/env python
-# import matplotlib.pyplot as plt
-import pkg_resources
+from importlib.metadata import version
 
-# from itertools import cycle
-
-try:
-    __version__ = pkg_resources.get_distribution("ktplotspy").version
-except:  # pragma: no cover
-    __version__ = "dev"
+__version__ = version("ktplotspy").split("+")[0]
 
 DEFAULT_SEP = ">@<"
 DEFAULT_SPEC_PAT = "/|:|\\?|\\*|\\+|\\(|\\)|\\/|\\[|\\]"
