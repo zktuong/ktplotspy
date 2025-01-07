@@ -61,7 +61,13 @@ nbsphinx_prolog = """
 .. raw:: html
 
    <style>
-       img {max-width: 100%; height: auto;}
+       .nbsphinx-output-cell {
+           overflow-x: auto;  /* Enable horizontal scrolling */
+           white-space: nowrap;  /* Prevent line breaks */
+       }
+       .nbsphinx-output img {
+           display: inline-block;  /* Ensure images behave well in scrollable areas */
+       }
    </style>
 """
 
