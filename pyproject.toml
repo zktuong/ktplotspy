@@ -43,6 +43,7 @@ repository = "https://github.com/zktuong/ktplotspy"
 [project.optional-dependencies]
 test = ["anndata>=0.7.6,<0.11.2", "black", "pytest-cov"]
 docs = [
+    "ipykernel",
     "sphinx<8",
     "nbsphinx<=0.9.5",
     "sphinx-autodoc-typehints<=2.3.0",
