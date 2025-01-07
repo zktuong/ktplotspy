@@ -3,10 +3,10 @@
 ktplots-*py*
 ------------
 
-Welcome! This is a super light-weight python library for plotting 
-`CellphoneDB <https://www.github.com/ventolab/CellphoneDB/>`__ results. Ported from 
-`ktplots <https://www.github.com/zktuong/ktplots/>`__ R package. For more options, 
-please check out the original R 
+Welcome! This is a super light-weight python library for plotting
+`CellphoneDB <https://www.github.com/ventolab/CellphoneDB/>`__ results. Ported from
+`ktplots <https://www.github.com/zktuong/ktplots/>`__ R package. For more options,
+please check out the original R
 `package <https://www.github.com/zktuong/ktplots/>`__.
 
 
@@ -34,9 +34,9 @@ If you find this useful, please cite the following preprint:
 
 .. [Troule2023]  Troulé K, Petryszak R, Prete M, Cranley J, Harasty A, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. (2023)
    *CellPhoneDB v5: inferring cell-cell communication from single-cell multiomics data.*,
-   `arXiv <https://arxiv.org/abs/2311.04567>`__. preprint arXiv:2311.04567. 2023 Nov 8. 
+   `arXiv <https://arxiv.org/abs/2311.04567>`__. preprint arXiv:2311.04567. 2023 Nov 8.
 
-as well, as github repositories. Also leave a star at the 
+as well, as github repositories. Also leave a star at the
 `ktplotspy <https://www.github.com/zktuong/ktplotspy/>`__ and the original
 `ktplots <https://www.github.com/zktuong/ktplots/>`__ repositories!
 

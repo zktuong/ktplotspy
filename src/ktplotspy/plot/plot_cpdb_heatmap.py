@@ -28,7 +28,7 @@ def plot_cpdb_heatmap(
     return_tables: bool = False,
     symmetrical: bool = True,
     default_sep: str = DEFAULT_CPDB_SEP,
-    **kwargs
+    **kwargs,
 ) -> Union[sns.matrix.ClusterGrid, Dict]:
     """Plot cellphonedb results as total counts of interactions.
 
@@ -131,7 +131,7 @@ def plot_cpdb_heatmap(
             linewidths=linewidths,
             tree_kws={"linewidths": 0},
             cmap=colmap,
-            **kwargs
+            **kwargs,
         )
         if title != "":
             g.fig.suptitle(title)

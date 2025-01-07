@@ -36,7 +36,7 @@ def plot_cpdb_chord(
     figsize: Tuple[Union[int, float], Union[int, float]] = (8, 8),
     legend_params: Dict = {"loc": "center left", "bbox_to_anchor": (1, 1), "frameon": False},
     layer: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> Gcircle:
     """Plotting cellphonedb results as a chord diagram.
 

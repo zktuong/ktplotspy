@@ -45,7 +45,7 @@ jobs:
 
       - name: Run interrogate
         run: interrogate .
-  
+
   pre-commit:
     name: Check pre-commit compliance.
     runs-on: ubuntu-latest
