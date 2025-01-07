@@ -1,21 +1,13 @@
 #!/usr/bin/env python
+import re
+from collections.abc import Iterable
+
 import numpy as np
 import pandas as pd
-import re
 import scipy.cluster.hierarchy as shc
-
-try:
-    from collections.abc import Iterable
-except ImportError:  # pragma: no cover
-    from collections import Iterable
-from collections import Counter
-from itertools import count, tee
+from ktplotspy.utils.settings import DEFAULT_CPDB_SEP, DEFAULT_SEP
 from matplotlib.colors import ListedColormap
 from scipy.sparse import issparse
-from typing import Dict, List, Optional
-
-
-from ktplotspy.utils.settings import DEFAULT_SEP, DEFAULT_CPDB_SEP
 
 
 def set_x_stroke(df: pd.DataFrame, isnull: bool, stroke: int):
@@ -39,7 +31,7 @@ def set_x_stroke(df: pd.DataFrame, isnull: bool, stroke: int):
             df.at[i, "x_stroke"] = stroke
 
 
-def hclust(data: pd.DataFrame, axis: int = 0) -> List:
+def hclust(data: pd.DataFrame, axis: int = 0) -> list:
     """Perform hierarchical clustering on rows or columns.
 
     Parameters
@@ -51,7 +43,7 @@ def hclust(data: pd.DataFrame, axis: int = 0) -> List:
 
     Returns
     -------
-    List
+    list
         Column name order after hierarchical clustering.
     """
     if data.shape[axis] > 1:
@@ -72,16 +64,16 @@ def hclust(data: pd.DataFrame, axis: int = 0) -> List:
     return data_order
 
 
-def filter_interaction_and_celltype(data: pd.DataFrame, genes: List, celltype_pairs: List) -> pd.DataFrame:
+def filter_interaction_and_celltype(data: pd.DataFrame, genes: list, celltype_pairs: list) -> pd.DataFrame:
     """Filter data to interactions and celltypes.
 
     Parameters
     ----------
     data : pd.DataFrame
         Input table to perform the filtering.
-    genes : List
-        List of query genes.
-    celltype_pairs : List
+    genes : list
+        list of query genes.
+    celltype_pairs : list
         Column names of celltype pairs
 
     Returns
@@ -118,8 +110,8 @@ def prep_celltype_query(
     cell_type1: str,
     cell_type2: str,
     pattern: str,
-    split_by: Optional[str] = None,
-) -> List:
+    split_by: str | None = None,
+) -> list:
     """Prepare regex query for celltypes.
 
     Parameters
@@ -132,13 +124,13 @@ def prep_celltype_query(
         Name of celltype 2.
     pattern : str
         Special character string pattern to substitute.
-    split_by : Optional[str], optional
+    split_by : str | None, optional
         How to split plotting groups.
 
     Returns
     -------
-    List
-        List of celltype querys.
+    list
+        list of celltype querys.
     """
     labels = list(meta._labels.cat.categories)
     if split_by is not None:
@@ -160,19 +152,19 @@ def prep_celltype_query(
     return celltype
 
 
-def prep_query_group(means: pd.DataFrame, custom_dict: Optional[Dict[str, List[str]]] = None) -> Dict:
+def prep_query_group(means: pd.DataFrame, custom_dict: dict[str, list[str]] | None = None) -> dict:
     """Return gene family query groups.
 
     Parameters
     ----------
     means : pd.DataFrame
         Means table.
-    custom_dict : Optional[Dict[str, List[str]]], optional
+    custom_dict : dict[str, list[str]] | None, optional
         If provided, will update the query groups with the custom list of genes.
 
     Returns
     -------
-    Dict
+    dict
         Dictionary of gene families.
     """
     chemokines = [i for i in means.interacting_pair if re.search(r"^CXC|CCL|CCR|CX3|XCL|XCR", i)]
@@ -241,34 +233,6 @@ def prep_table(data: pd.DataFrame) -> pd.DataFrame:
     return dat
 
 
-# def make_unique(seq: pd.Series) -> List:
-#     """Make unique names.
-
-#     Parameters
-#     ----------
-#     seq : pd.Series
-#         Series to convert to unique.
-
-#     Returns
-#     -------
-#     List
-#         List of unique names.
-#     """
-#     seq = list(seq)
-#     not_unique = [k for k, v in Counter(seq).items() if v > 1]  # so we have: ['name', 'zip']
-#     # suffix generator dict - e.g., {'name': <my_gen>, 'zip': <my_gen>}
-#     suff_gens = dict(zip(not_unique, tee(count(1), len(not_unique))))
-#     for idx, s in enumerate(seq):
-#         try:
-#             suffix = "_" + str(next(suff_gens[s]))
-#         except KeyError:
-#             # s was unique
-#             continue
-#         else:
-#             seq[idx] += suffix
-#     return seq
-
-
 def sub_pattern(cell_type: str, pattern: str) -> str:
     """Substitute special characters in celltype name.
 
@@ -289,20 +253,20 @@ def sub_pattern(cell_type: str, pattern: str) -> str:
     return cell_typex
 
 
-def sub_pattern_loop(cell_types: list, pattern: str) -> List:
+def sub_pattern_loop(cell_types: list, pattern: str) -> list:
     """For-loop to substitute special characters in celltype names.
 
     Parameters
     ----------
     cell_types : list
-        List of celltypes to find and replace special pattern.
+        list of celltypes to find and replace special pattern.
     pattern : str
         Special pattern to find and replace.
 
     Returns
     -------
-    List
-        List of formatted celltype names.
+    list
+        list of formatted celltype names.
     """
     celltypes = []
     for c in cell_types:
@@ -327,22 +291,22 @@ def is_categorical(series: pd.Series) -> bool:
     return series.dtype.name == "category"
 
 
-def create_celltype_query(ctype1: str, ctypes2: List, sep: str) -> List:
+def create_celltype_query(ctype1: str, ctypes2: list, sep: str) -> list:
     """Create a regex string term with celltypes.
 
     Parameters
     ----------
     ctype1 : str
         Name of celltype 1.
-    ctypes2 : List
-        List of celltype 2 names.
+    ctypes2 : list
+        list of celltype 2 names.
     sep : str
         Character separator to store the split between celltype1 and celltype2s.
 
     Returns
     -------
-    List
-        List of regex patterns for celltype1-celltype2s.
+    list
+        list of regex patterns for celltype1-celltype2s.
     """
     ct = []
     for cx2 in ctypes2:
@@ -374,7 +338,7 @@ def keep_interested_groups(grp: str, ct: str, sep: str) -> str:
     return "|".join(ctx)
 
 
-def hex_to_rgb(hex: str) -> List:
+def hex_to_rgb(hex: str) -> list:
     """Convert hex code to RGB values.
 
     e.g. "#FFFFFF" -> [255,255,255]
@@ -386,21 +350,21 @@ def hex_to_rgb(hex: str) -> List:
 
     Returns
     -------
-    List
+    list
         RGB colour code.
     """
     # Pass 16 to the integer function for change of base
     return [int(hex[i : i + 2], 16) for i in range(1, 6, 2)]
 
 
-def rgb_to_hex(rgb: List) -> str:
+def rgb_to_hex(rgb: list) -> str:
     """Convert RGB values to hex code.
 
     e.g. [255,255,255] -> "#FFFFFF"
 
     Parameters
     ----------
-    rgb : List
+    rgb : list
         RGB colour code.
 
     Returns
@@ -413,10 +377,10 @@ def rgb_to_hex(rgb: List) -> str:
         rgb = [int(x) for x in rgb[:3]]  # pragma: no cover
     else:
         rgb = [int(x) for x in rgb]
-    return "#" + "".join(["0{0:x}".format(v) if v < 16 else "{0:x}".format(v) for v in rgb])
+    return "#" + "".join([f"0{v:x}" if v < 16 else f"{v:x}" for v in rgb])
 
 
-def colour_dict(gradient: List) -> Dict:
+def colour_dict(gradient: list) -> dict:
     """Generate dictionary of colours.
 
 
@@ -424,12 +388,12 @@ def colour_dict(gradient: List) -> Dict:
 
     Parameters
     ----------
-    gradient : List
-        List of RGB colours.
+    gradient : list
+        list of RGB colours.
 
     Returns
     -------
-    Dict
+    dict
         Dictionary of colours.
     """
     return {
@@ -440,7 +404,7 @@ def colour_dict(gradient: List) -> Dict:
     }
 
 
-def linear_gradient(start_hex: str, finish_hex: str = "#FFFFFF", n: int = 10) -> Dict:
+def linear_gradient(start_hex: str, finish_hex: str = "#FFFFFF", n: int = 10) -> dict:
     """Return a gradient list of n colours between two hex colours.
 
     `start_hex` and `finish_hex` should be the full six-digit colour string, including the number sign ("#FFFFFF").
@@ -456,7 +420,7 @@ def linear_gradient(start_hex: str, finish_hex: str = "#FFFFFF", n: int = 10) ->
 
     Returns
     -------
-    Dict
+    dict
         Dictionary of colour gradient.
     """
     # Starting and ending colours in RGB form
@@ -501,18 +465,18 @@ def diverging_palette(low: str, medium: str, high: str, n: int = 4096) -> Listed
     return newcmp
 
 
-def flatten(l: List[List]) -> List:
+def flatten(l: list[list]) -> list:
     """
     Flatten a list-in-list-in-list.
 
     Parameters
     ----------
-    l : List[List]
+    l : list[list]
         a list-in-list list
 
     Yields
     ------
-    List
+    list
         a flattened list.
     """
     for el in l:
@@ -522,14 +486,14 @@ def flatten(l: List[List]) -> List:
             yield el
 
 
-def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
+def celltype_means(adata: "AnnData", layer: str | None = None) -> np.ndarray:
     """Compute mean of gene expression.
 
     Parameters
     ----------
     adata : AnnData
         input `AnnData` object.
-    layer : Optional[str], optional
+    layer : str | None, optional
         if left as None, will use `.X`.
 
     Returns
@@ -549,14 +513,14 @@ def celltype_means(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
             return np.mean(adata.layers[layer], axis=0)
 
 
-def celltype_fraction(adata: "AnnData", layer: Optional[str] = None) -> np.ndarray:
+def celltype_fraction(adata: "AnnData", layer: str | None = None) -> np.ndarray:
     """Compute non-zeor expression fraction
 
     Parameters
     ----------
     adata : AnnData
         input `AnnData` object.
-    layer : Optional[str], optional
+    layer : str | None, optional
         if left as None, will use `.X`.
 
     Returns
@@ -581,7 +545,7 @@ def present(x) -> bool:
     return pd.notnull(x) and x != ""
 
 
-def find_complex(interaction_df: pd.DataFrame) -> List[str]:
+def find_complex(interaction_df: pd.DataFrame) -> list[str]:
     """Return complexes.
 
     Parameters
@@ -591,7 +555,7 @@ def find_complex(interaction_df: pd.DataFrame) -> List[str]:
 
     Returns
     -------
-    List[str]
+    list[str]
         list of complexes.
     """
     idxa = [i for i, j in interaction_df.gene_a.items() if not present(j)]

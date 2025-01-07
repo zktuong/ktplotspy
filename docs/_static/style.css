@@ -1,0 +1,5 @@
+.wy-nav-content {
+    max-width: none;   /* Remove the width limitation */
+    overflow-x: auto;  /* Enable horizontal scrolling */
+    white-space: nowrap;  /* Prevent line breaks inside the content */
+}

@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+import re
+from typing import Literal
+
 import numpy as np
 import pandas as pd
-import re
-
 from plotnine import (
     aes,
     element_blank,
@@ -24,16 +25,15 @@ from plotnine import (
     theme,
     theme_bw,
 )
-from typing import List, Literal, Optional, Union, Tuple, Dict
 
 from ktplotspy.utils.settings import (
-    DEFAULT_V5_COL_START,
-    DEFAULT_COL_START,
+    DEFAULT_CELLSIGN_ALPHA,
     DEFAULT_CLASS_COL,
+    DEFAULT_COL_START,
+    DEFAULT_COLUMNS,
     DEFAULT_SEP,
     DEFAULT_SPEC_PAT,
-    DEFAULT_CELLSIGN_ALPHA,
-    DEFAULT_COLUMNS,
+    DEFAULT_V5_COL_START,
 )
 from ktplotspy.utils.support import (
     ensure_categorical,
@@ -54,16 +54,16 @@ def plot_cpdb(
     means: pd.DataFrame,
     pvals: pd.DataFrame,
     celltype_key: str,
-    interaction_scores: Optional[pd.DataFrame] = None,
-    cellsign: Optional[pd.DataFrame] = None,
+    interaction_scores: pd.DataFrame | None = None,
+    cellsign: pd.DataFrame | None = None,
     degs_analysis: bool = False,
-    splitby_key: Optional[str] = None,
+    splitby_key: str | None = None,
     alpha: float = 0.05,
     keep_significant_only: bool = True,
-    genes: Optional[Union[List[str], str]] = None,
-    gene_family: Optional[Union[List[str], Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]]] = None,
-    interacting_pairs: Optional[Union[List[str], str]] = None,
-    custom_gene_family: Optional[Dict[str, List[str]]] = None,
+    genes: list[str] | str | None = None,
+    gene_family: list[str] | Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"] | None = None,
+    interacting_pairs: list[str] | str | None = None,
+    custom_gene_family: dict[str, list[str]] | None = None,
     standard_scale: bool = True,
     cluster_rows: bool = True,
     cmap_name: str = "viridis",
@@ -71,19 +71,19 @@ def plot_cpdb(
     max_highlight_size: int = 3,
     default_style: bool = True,
     highlight_col: str = "#d62728",
-    highlight_size: Optional[int] = None,
-    special_character_regex_pattern: Optional[str] = None,
-    exclude_interactions: Optional[Union[List[str], str]] = None,
+    highlight_size: int | None = None,
+    special_character_regex_pattern: str | None = None,
+    exclude_interactions: list[str] | str | None = None,
     title: str = "",
     return_table: bool = False,
-    figsize: Tuple[Union[int, float], Union[int, float]] = (6.4, 4.8),
+    figsize: tuple[int | float, int | float] = (6.4, 4.8),
     min_interaction_score: int = 0,
     scale_alpha_by_interaction_scores: bool = False,
     scale_alpha_by_cellsign: bool = False,
     filter_by_cellsign: bool = False,
     keep_id_cp_interaction: bool = False,
     result_precision: int = 3,
-) -> Union[ggplot, pd.DataFrame]:
+) -> ggplot | pd.DataFrame:
     """Plotting CellPhoneDB results as a dot plot.
 
     Parameters
@@ -102,26 +102,26 @@ def plot_cpdb(
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
         Values in this column should match the second column of the input `meta.txt` used for CellPhoneDB.
-    interaction_scores : Optional[pd.DataFrame], optional
+    interaction_scores : pd.DataFrame | None, optional
         Data frame corresponding to `interaction_scores.txt` from CellPhoneDB version 5 onwards.
-    cellsign : Optional[pd.DataFrame], optional
+    cellsign : pd.DataFrame | None, optional
         Data frame corresponding to `CellSign.txt` from CellPhoneDB version 5 onwards.
     degs_analysis : bool, optional
         Whether CellPhoneDB was run in `deg_analysis` mode.
-    splitby_key : Optional[str], optional
+    splitby_key : str | None, optional
         If provided, will attempt to split the output plot/table by groups.
         In order for this to work, the second column of the input `meta.txt` used for CellPhoneDB MUST be this format: {splitby}_{celltype}.
     alpha : float, optional
         P value threshold value for significance.
     keep_significant_only : bool, optional
         Whether or not to trim to significant (p<0.05) hits.
-    genes : Optional[Union[List[str], str]], optional
+    genes : list[str] | str | None, optional
         If provided, will attempt to plot only interactions containing the specified gene(s).
-    gene_family : Optional[Union[List[str], Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"]]], optional
+    gene_family : list[str] | Literal["chemokines", "th1", "th2", "th17", "treg", "costimulatory", "coinhibitory"] | None, optional
         If provided, will attempt to plot a predetermined set of chemokines or genes associated with Th1, Th2, Th17, Treg, costimulatory or coinhibitory molecules.
-    interacting_pairs : Optional[Union[List[str], str]], optional
+    interacting_pairs : list[str] | str | None, optional
         If provided, will attempt to plot only interactions containing the specified interacting pair(s). Ignores `genes` and `gene_family` if provided.
-    custom_gene_family : Optional[Dict[str, List[str]]], optional
+    custom_gene_family : dict[str, list[str]] | None, optional
         If provided, will update the gene_family dictionary with this custom dictionary.
         Both `gene_family` (name of the custom family) and `custom_gene_family` (dictionary holding this new family)
         must be specified for this to work.
@@ -139,20 +139,20 @@ def plot_cpdb(
         Whether or not to plot in default style or inspired from `squidpy`'s plotting style.
     highlight_col : str, optional
         Colour of highlights marking significant hits.
-    highlight_size : Optional[int], optional
+    highlight_size : int | None, optional
         Size of highlights marking significant hits.
-    special_character_regex_pattern : Optional[str], optional
+    special_character_regex_pattern : str | None, optional
         Regex string pattern to perform substitution.
         This option should not realy be used unless there is really REALLY special characters that you really REALLY want to keep.
         Rather than using this option, the easiest way is to not your celltypes with weird characters.
         Just use alpha numeric characters and underscores if necessary.
-    exclude_interactions : Optional[Union[List, str]], optional
+    exclude_interactions : Optional[Union[list, str]], optional
         If provided, the interactions will be removed from the output.
     title : str, optional
         Plot title.
     return_table : bool, optional
         Whether or not to return the results as a dataframe.
-    figsize : Tuple[Union[int, float], Union[int, float]], optional
+    figsize : tuple[int | float, int | float], optional
         Figure size.
     min_interaction_score: int, optional
         Filtering the interactions shown by including only those above the given interaction score.
@@ -166,9 +166,10 @@ def plot_cpdb(
         Whether to keep the original `id_cp_interaction` value when plotting.
     result_precision: int, optional
         Sets integer value for decimal points of p_value, default to 3
+
     Returns
     -------
-    Union[ggplot, pd.DataFrame]
+    ggplot | pd.DataFrame
         Either a plotnine `ggplot` plot or a pandas `Data frame` holding the results.
 
     Raises
@@ -176,7 +177,6 @@ def plot_cpdb(
     KeyError
         If genes and gene_family are both provided, wrong key for gene family provided, or if interaction_score and cellsign are both provided the error will occur.
     """
-
     if special_character_regex_pattern is None:
         special_character_regex_pattern = DEFAULT_SPEC_PAT
     # prepare data
@@ -230,13 +230,13 @@ def plot_cpdb(
                             for gfg in query_group[gf.lower()]:
                                 query.append(gfg)
                         else:
-                            raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                            raise KeyError(f"gene_family needs to be one of the following: {query_group.keys()}")
                     query = list(set(query))
                 else:
                     if gene_family.lower() in query_group:
                         query = query_group[gene_family.lower()]
                     else:
-                        raise KeyError("gene_family needs to be one of the following: {}".format(query_group.keys()))
+                        raise KeyError(f"gene_family needs to be one of the following: {query_group.keys()}")
             else:
                 query = [i for i in means_mat.interacting_pair if re.search("", i)]
         elif genes is not None:
@@ -585,7 +585,7 @@ def plot_cpdb(
             g
             + scale_colour_manual(values=highlight_col, na_translate=False)
             + guides(
-                fill=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                fill=guide_colourbar(theme=theme(legend_key_width=4), draw_ulim=True, draw_llim=True, order=1),
                 size=guide_legend(
                     reverse=True,
                     order=2,
@@ -602,7 +602,7 @@ def plot_cpdb(
             g
             + scale_fill_manual(values=highlight_col, na_translate=False)
             + guides(
-                colour=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                colour=guide_colourbar(theme=theme(legend_key_width=4), draw_ulim=True, draw_llim=True, order=1),
                 size=guide_legend(
                     reverse=True,
                     order=2,
