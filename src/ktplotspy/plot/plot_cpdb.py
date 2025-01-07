@@ -585,7 +585,7 @@ def plot_cpdb(
             g
             + scale_colour_manual(values=highlight_col, na_translate=False)
             + guides(
-                fill=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                fill=guide_colourbar(theme=theme(legend_key_width=4), draw_ulim=True, draw_llim=True, order=1),
                 size=guide_legend(
                     reverse=True,
                     order=2,
@@ -602,7 +602,7 @@ def plot_cpdb(
             g
             + scale_fill_manual(values=highlight_col, na_translate=False)
             + guides(
-                colour=guide_colourbar(barwidth=4, label=True, ticks=True, draw_ulim=True, draw_llim=True, order=1),
+                colour=guide_colourbar(theme=theme(legend_key_width=4), draw_ulim=True, draw_llim=True, order=1),
                 size=guide_legend(
                     reverse=True,
                     order=2,

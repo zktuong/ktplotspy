@@ -44,53 +44,36 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        config:
-          - { python-version: "3.10", os: ubuntu-latest }
-          - { python-version: "3.11", os: ubuntu-latest }
-          - { python-version: "3.12", os: ubuntu-latest }
-          - { python-version: "3.10", os: windows-latest }
-          - { python-version: "3.11", os: windows-latest }
-          - { python-version: "3.12", os: windows-latest }
-          - { python-version: "3.10", os: macos-latest }
-          - { python-version: "3.11", os: macos-latest }
-          - { python-version: "3.12", os: macos-latest }
-    runs-on: ${{ matrix.config.os }}
-    env:
-      TZ: UTC
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
+        environment: [py310, py311, py312, py313]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    name: Build and test
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Pixi Environment
+        uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          python-version: ${{ matrix.config.python-version }}
-          cache: "pip"
-          cache-dependency-path: |
-            **/pyproject.toml
+          environments: ${{ matrix.environment }}
+          pixi-version: v0.39.2
+          cache: false
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
 
-      - name: Install
+      - name: Test build, unit tests and docs
         run: |
-          python -m pip install .[test]
-        shell: bash {0}
-
-      - name: Test with pytest
-        run: |
-          python -m pytest
-        shell: bash {0}
+          pixi run -e ${{ matrix.environment }} test
 
       - name: Show coverage
         run: |
           coverage report
 
       - name: Upload coverage to Codecov
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.python-version == '3.10' && github.actor != 'dependabot[bot]' &&  github.actor == 'zktuong'
+        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313' && github.actor != 'dependabot[bot]' && github.actor == 'zktuong'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          env_vars: ${{ format('OS={0},PYTHON={1}', matrix.config.os, matrix.config.python-version) }}
+          env_vars: ${{ format('OS={0},PYTHON={1}', matrix.os, matrix.environment) }}
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: false
