@@ -2,8 +2,17 @@
     max-width: none;
  }
 
- .nbsphinx-code-cell, .nbsphinx-output-cell {
-    overflow-x: auto;  /* Horizontal scrolling when needed */
-    max-width: 100%;   /* Don’t exceed the container width */
-    box-sizing: border-box;  /* Include padding and border in the width */
+ .nbsphinx-output-cell {
+    overflow-x: auto !important;  /* Enable horizontal scrolling */
+    white-space: nowrap !important;  /* Prevent wrapping of wide content */
+    max-width: 100%;  /* Ensure the output cell doesn't exceed container width */
+}
+
+.nbsphinx-output img {
+    max-width: none !important;  /* Allow plots to exceed container width */
+    display: inline-block;  /* Keep images inline for scrolling */
+}
+
+.nbsphinx-code-cell {
+    overflow-x: auto !important;  /* Add scrolling for code cells */
 }
