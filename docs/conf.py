@@ -45,6 +45,7 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_css_files = ["style.css"]
 
 html_logo = "notebooks/logo.png"
 html_favicon = "notebooks/logo.png"
@@ -56,26 +57,3 @@ master_doc = "index"
 napoleon_use_param = False
 autodoc_member_order = "bysource"
 autosummary_generate = True
-
-nbsphinx_prolog = """
-.. raw:: html
-
-   <style>
-       .nbsphinx-output-cell {
-           overflow-x: auto !important;
-           white-space: nowrap !important;
-           max-width: 100%;
-       }
-       .nbsphinx-output img {
-           max-width: none !important;
-           display: inline-block;
-       }
-       .nbsphinx-code-cell {
-           overflow-x: auto !important;
-       }
-   </style>
-"""
-
-
-# def setup(app):
-#     app.add_css_file("style.css")
