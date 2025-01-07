@@ -33,7 +33,7 @@ dependencies = [
     "seaborn>=0.12,<0.14",
     "requests>=2.28.0",
     "python-circos",
-    "biopython @ https://github.com/biopython/biopython.git",
+    # "biopython @ https://github.com/biopython/biopython.git",
 ]
 
 [project.urls]
@@ -97,13 +97,13 @@ platforms = ["osx-arm64", "linux-64", "win-64"]
 ktplotspy = { path = ".", editable = true }
 
 [tool.pixi.environments]
-default = { solve-group = "default" }
-docs = { features = ["docs"], solve-group = "default" }
-test = { features = ["test"], solve-group = "default" }
+default = ["py310"]
+docs = { features = ["py312", "docs"], solve-group = "py312" }
+test = { features = ["py312", "test"], solve-group = "py312" }
 py310 = ["py310", "docs", "test"]
 py311 = ["py311", "docs", "test"]
 py312 = ["py312", "docs", "test"]
-py313 = ["py313", "docs", "test"]
+# py313 = ["py313", "docs", "test"] # until biopython is updated to >=1.85 on pypi
 
 [tool.pixi.tasks]
 test = "pytest"
@@ -115,5 +115,5 @@ python = "~=3.10.0"
 python = "~=3.11.0"
 [tool.pixi.feature.py312.dependencies]
 python = "~=3.12.0"
-[tool.pixi.feature.py313.dependencies]
-python = "~=3.13.0"
+# [tool.pixi.feature.py313.dependencies]
+# python = "~=3.13.0"

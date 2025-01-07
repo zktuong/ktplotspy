@@ -44,7 +44,7 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        environment: [py310, py311, py312, py313]
+        environment: [py310, py311, py312]
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     name: Build and test
@@ -64,12 +64,12 @@ jobs:
           pixi run -e ${{ matrix.environment }} test
 
       - name: Show coverage
-        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313'
+        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py312'
         run: |
           pixi run -e ${{ matrix.environment }} coverage
 
       - name: Upload coverage to Codecov
-        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313' && github.actor != 'dependabot[bot]' && github.actor == 'zktuong'
+        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py312' && github.actor != 'dependabot[bot]' && github.actor == 'zktuong'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
