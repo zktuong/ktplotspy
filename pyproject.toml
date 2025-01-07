@@ -57,7 +57,7 @@ filterwarnings = [
     "ignore::plotnine.exceptions.PlotnineWarning",
 ]
 testpaths = ["tests"]
-addopts = "--cov ktplotspy --cov-report=xml"
+addopts = "--cov src/ktplotspy --cov-report=xml"
 
 [tool.interrogate]
 ignore-init-method = true
@@ -107,6 +107,7 @@ py313 = ["py313", "docs", "test"]
 
 [tool.pixi.tasks]
 test = "pytest"
+coverage = "coverage report"
 
 [tool.pixi.feature.py310.dependencies]
 python = "~=3.10.0"

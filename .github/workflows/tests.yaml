@@ -59,13 +59,14 @@ jobs:
           cache: false
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'master' }}
 
-      - name: Test build, unit tests and docs
+      - name: Test build, unit tests
         run: |
           pixi run -e ${{ matrix.environment }} test
-
+          
       - name: Show coverage
+        if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313'
         run: |
-          coverage report
+          pixi run -e ${{ matrix.environment }} coverage
 
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.environment == 'py313' && github.actor != 'dependabot[bot]' && github.actor == 'zktuong'
