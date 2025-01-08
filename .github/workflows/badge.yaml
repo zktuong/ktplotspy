@@ -21,6 +21,7 @@ jobs:
       - id: version
         name: Install package
         run: |
+          pip install setuptools wheel setuptools_scm
           python -m pip install .
           echo "version=$(python -m pip show ktplotspy | grep Version | awk '{print $2}')" >> $GITHUB_OUTPUT
       - name: version badge
