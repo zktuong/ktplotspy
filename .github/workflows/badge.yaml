@@ -19,11 +19,9 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
       - id: version
-        name: Install package
+        name: Use git to get version
         run: |
-          pip install setuptools wheel setuptools_scm
-          python -m pip install .
-          echo "version=$(python -m pip show ktplotspy | grep Version | awk '{print $2}')" >> $GITHUB_OUTPUT
+          echo "version=$(git describe --dirty --tags --long)" >> $GITHUB_OUTPUT
       - name: version badge
         uses: RubbaBoy/BYOB@v1.3.0
         with:
