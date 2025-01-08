@@ -23,7 +23,7 @@ jobs:
         name: Install package
         run: |
           python -m pip install .
-          echo "##[set-output name=version;]$(python -c'import ktplotspy; print(ktplotspy.__version__)')"
+          echo "version=$(python -m pip show ktplotspy | grep Version | awk '{print $2}')" >> $GITHUB_OUTPUT
       - name: version badge
         uses: RubbaBoy/BYOB@v1.3.0
         with:
