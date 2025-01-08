@@ -18,10 +18,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
-      - id: version
-        name: Use git to get version
+      - name: Install package
         run: |
-          echo "version=$(git describe --dirty --tags --long)" >> $GITHUB_OUTPUT
+          pip install git+https://github.com/zktuong/ktplotspy.git
+      - id: version
+        name: Get version
+        run: |
+          echo "version=$(python -m pip show ktplotspy | grep Version | awk '{print $2}')" >> $GITHUB_OUTPUT
       - name: version badge
         uses: RubbaBoy/BYOB@v1.3.0
         with:

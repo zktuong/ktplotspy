@@ -1,4 +1,2 @@
 # Auto detect text files and perform LF normalization
 *text = auto
-# SCM syntax highlighting
-pixi.lock linguist-language=YAML linguist-generated=true
