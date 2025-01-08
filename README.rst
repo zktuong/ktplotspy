@@ -1,4 +1,4 @@
-|Docs| |PyPI| |Master| |MasterTest| |CodeCov|
+|Docs| |PyPI| |MasterTest| |CodeCov|
 
 ktplots-*py*
 ------------
@@ -48,8 +48,6 @@ as well, as github repositories. Also leave a star at the
    :target: https://ktplotspy.readthedocs.io/en/latest/?badge=latest
 .. |PyPI| image:: https://img.shields.io/pypi/v/ktplotspy?logo=PyPI
    :target: https://pypi.org/project/ktplotspy/
-.. |Master| image:: https://byob.yarr.is/zktuong/ktplotspy/version
-   :target: https://github.com/zktuong/ktplotspy/tree/master
 .. |MasterTest| image:: https://github.com/zktuong/ktplotspy/actions/workflows/tests.yaml/badge.svg
    :target: https://github.com/zktuong/ktplotspy/actions/workflows/tests.yaml
 .. |CodeCov| image:: https://codecov.io/gh/zktuong/ktplotspy/branch/master/graph/badge.svg?token=661BMU1FBO
