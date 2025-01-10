@@ -19,7 +19,7 @@ def test_plot_cpdb_chord(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
     )
     g
 
@@ -36,7 +36,7 @@ def test_plot_cpdb_chord_self(mock_show, adata, means, pvals, decon):
         deconvoluted=decon,
         celltype_key="celltype",
         remove_self=False,
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
     )
     g
 
@@ -52,7 +52,7 @@ def test_plot_cpdb_complex(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
         keep_significant_only=False,
     )
     g
@@ -69,8 +69,8 @@ def test_plot_cpdb_chord_color_dict(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
-        face_col_dict={
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
+        sector_colors={
             "B cell": "red",
             "NK cell": "blue",
             "CD4T cell": "red",
@@ -80,7 +80,7 @@ def test_plot_cpdb_chord_color_dict(mock_show, adata, means, pvals, decon):
             "NKT cell": "red",
             "CD8T cell": "blue",
         },
-        edge_col_dict={"CD22-PTPRC": "red", "TNFRSF13B-TNFSF13B": "blue"},
+        link_colors={"CD22-PTPRC": "red", "TNFRSF13B-TNFSF13B": "blue"},
     )
     g
 
@@ -110,7 +110,7 @@ def test_plot_cpdb_chord_adata_col(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
     )
     g
 
@@ -141,7 +141,7 @@ def test_plot_cpdb_chord_adata_col_nocat(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
     )
     g
 
@@ -158,7 +158,7 @@ def test_plot_cpdb_chord_adata_layer1(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
         layer="test",
     )
     g
@@ -176,7 +176,7 @@ def test_plot_cpdb_chord_adata_layer2(mock_show, adata, means, pvals, decon):
         pvals=pvals,
         deconvoluted=decon,
         celltype_key="celltype",
-        genes=["PTPRC", "TNFSF13", "BMPR2"],
+        interaction=["PTPRC", "TNFSF13", "BMPR2"],
         layer="test",
     )
     g

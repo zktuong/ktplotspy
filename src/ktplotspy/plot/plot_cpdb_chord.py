@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 import re
-from collections import defaultdict
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.colors import LinearSegmentedColormap
+
+from collections import defaultdict
+from itertools import product
 from matplotlib.lines import Line2D
-from pycircos import Garc, Gcircle
+from pycirclize import Circos
 
 from ktplotspy.plot import plot_cpdb
-from ktplotspy.utils.settings import DEFAULT_SEP  # DEFAULT_PAL
+from ktplotspy.utils.settings import DEFAULT_PAL, DEFAULT_PAL_CYCLER, DEFAULT_SEP
 from ktplotspy.utils.support import celltype_fraction, celltype_means, find_complex, flatten, generate_df
 
 
@@ -20,22 +20,24 @@ def plot_cpdb_chord(
     pvals: pd.DataFrame,
     deconvoluted: pd.DataFrame,
     celltype_key: str,
-    face_col_dict: dict[str, str] | None = None,
-    edge_col_dict: dict[str, str] | None = None,
-    edge_cmap: LinearSegmentedColormap = plt.cm.nipy_spectral,
+    interaction: str | list[str] | None = None,
+    cell_type1: str | None = None,
+    cell_type2: str | None = None,
+    keep_celltypes: list[str] | None = None,
     remove_self: bool = True,
-    gap: int | float = 2,
-    scale_lw: int | float = 10,
-    size: int | float = 50,
-    interspace: int | float = 2,
-    raxis_range: tuple[int, int] = (950, 1000),
-    labelposition: int | float = 80,
-    label_visible: bool = True,
-    figsize: tuple[int | float, int | float] = (8, 8),
-    legend_params: dict = {"loc": "center left", "bbox_to_anchor": (1, 1), "frameon": False},
     layer: str | None = None,
-    **kwargs,
-) -> Gcircle:
+    sector_colors: dict[str, str] | None = None,
+    sector_text_kwargs: dict = {"color": "black", "size": 8, "r": 105, "adjust_rotation": True},
+    sector_radius_limit: tuple[float, float] = (95, 100),
+    equal_sector_size: bool = False,
+    same_producer_colors: bool = False,
+    link_colors: str | dict[str, str] | None = None,
+    link_offset: float = 0,
+    link_kwargs: dict = {"direction": 1, "allow_twist": True, "r1": 95, "r2": 90},
+    legend_width: float = 2,
+    legend_kwargs: dict = {"loc": "center", "bbox_to_anchor": (1, 1), "fontsize": 8},
+    **plot_cpdb_kwargs,
+):
     """Plotting cellphonedb results as a chord diagram.
 
     Parameters
@@ -52,44 +54,42 @@ def plot_cpdb_chord(
     celltype_key : str
         Column name in `adata.obs` storing the celltype annotations.
         Values in this column should match the second column of the input `meta.txt` used for `cellphonedb`.
-    face_col_dict : dict[str, str] | None, optional
-        dictionary of celltype : face colours.
-        If not provided, will try and use `.uns` from `adata` if correct slot is present.
-    edge_col_dict : dict[str, str] | None, optional
-        Dictionary of interactions : edge colours. Otherwise, will use edge_cmap option.
-    edge_cmap : LinearSegmentedColormap, optional
-        a `LinearSegmentedColormap` to generate edge colors.
+    interaction : str | list[str] | None, optional
+        Interaction(s) to plot. If None, all interactions will be plotted. If provided as a '-' separated string between L-R pair, only the specific interaction(s) will be plotted (more than 1 pair is accepted).
+        If provided as a list of strings without '-' separator, all relevant interactions in the list will be plotted.
+    cell_type1 : str | None, optional
+        Name of cell type 1. Accepts regex pattern. None defaults to "." i.e. all cell types. If both cell_type1 and cell_type2 are provided, only interactions contained in these cell types will be plotted.
+    cell_type2 : str | None, optional
+        Name of cell type 2. Accepts regex pattern. None defaults to "." i.e. all cell types. If both cell_type1 and cell_type2 are provided, only interactions contained in these cell types will be plotted.
+    keep_celltypes : list[str] | None, optional
+        If provided, only interactions to/from these celltypes will be plotted.
     remove_self : bool, optional
         whether to remove self edges.
-    gap : int | float, optional
-        relative size of gaps between edges on arc.
-    scale_lw : int | float, optional
-        numeric value to scale width of lines.
-    size : int | float, optional
-        Width of the arc section. If record is provided, the value is
-        instead set by the sequence length of the record. In reality
-        the actual arc section width in the resultant circle is determined
-        by the ratio of size to the combined sum of the size and interspace
-        values of the Garc class objects in the Gcircle class object.
-    interspace : int | float, optional
-        Distance angle (deg) to the adjacent arc section in clockwise
-        sequence. The actual interspace size in the circle is determined by
-        the actual arc section width in the resultant circle is determined
-        by the ratio of size to the combined sum of the size and interspace
-        values of the Garc class objects in the Gcircle class object.
-    raxis_range : tuple[int, int], optional
-        Radial axis range where line plot is drawn.
-    labelposition : int | float, optional
-        Relative label height from the center of the arc section.
-    label_visible : bool, optional
-        Font size of the label. The default is 10.
-    figsize : tuple[int | float, int | float], optional
-        size of figure.
-    legend_params : dict, optional
-        additional arguments for `plt.legend`.
     layer : str | None, optional
         slot in `AnnData.layers` to access. If `None`, uses `.X`.
-    **kwargs
+    sector_colors : dict[str, str] | None, optional
+        dictionary of celltype (sector) colours.
+        If not provided, will try and use `.uns` from `adata` if correct slot is present.
+    sector_text_kwargs : dict, optional
+        additional arguments for `track.text`. See https://moshi4.github.io/pyCirclize/api-docs/sector/#pycirclize.sector.Sector.text
+    sector_radius_limit : tuple[float, float], optional
+        radius limits for the sectors.
+    equal_sector_size : bool, optional
+        whether to use equal sector sizes.
+    same_producer_colors : bool, optional
+        whether to use the same colours for sector and links for outgoing interactions.
+    link_colors : dict[str, str] | None, optional
+        String or dictionary of L-R interaction colours. If not provided, will use a default colour, will use a random
+        colour for each unique interaction.
+    link_offset : float, optional
+        offset to add to each interaction value.
+    link_kwargs : dict, optional
+        additional arguments for `circos.link`. See https://moshi4.github.io/pyCirclize/api-docs/circos/#pycirclize.circos.Circos.link
+    legend_width : float, optional
+        width of the legend line.
+    legend_kwargs : dict, optional
+        additional arguments for `Axes.Legend`. See https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html
+    **plot_cpdb_kwargs
         passed to `plot_cpdb`.
 
     Returns
@@ -99,15 +99,38 @@ def plot_cpdb_chord(
     """
     # assert splitby = False
     splitby_key, return_table = None, True
+    if interaction is not None:
+        if isinstance(interaction, str):
+            # check if there's '-' in the interaction
+            if "-" in interaction:
+                lr_intx = interaction.split("-")
+            else:
+                lr_intx = [interaction]
+        elif isinstance(interaction, list):
+            lr_intx = []
+            for intx in interaction:
+                if "-" in intx:
+                    tmp_lr_intx = intx.split("-")
+                    for tmp_intx in tmp_lr_intx:
+                        lr_intx.append(tmp_intx)
+                else:
+                    lr_intx.append(intx)
+    else:
+        lr_intx = None
+    cell_type1 = cell_type1 if cell_type1 is not None else "."
+    cell_type2 = cell_type2 if cell_type2 is not None else "."
     # run plot_cpdb
     lr_interactions = plot_cpdb(
         adata=adata,
         means=means,
         pvals=pvals,
+        genes=lr_intx,
         celltype_key=celltype_key,
         return_table=return_table,
         splitby_key=splitby_key,
-        **kwargs,
+        cell_type1=cell_type1,
+        cell_type2=cell_type2,
+        **plot_cpdb_kwargs,
     )
     # do some name wrangling
     subset_clusters = list(set(flatten([x.split("-") for x in lr_interactions.celltype_group])))
@@ -118,7 +141,6 @@ def plot_cpdb_chord(
     interactions["use_interaction_name"] = [
         x + DEFAULT_SEP * 3 + y for x, y in zip(interactions.id_cp_interaction, interactions.interacting_pair)
     ]
-    # interactions["converted"] = [re.sub("-", " ", x) for x in interactions.use_interaction_name]
     interactions["converted"] = [re.sub("_", "-", x) for x in interactions.use_interaction_name]
     lr_interactions["barcode"] = [a + DEFAULT_SEP + b for a, b in zip(lr_interactions.celltype_group, lr_interactions.interaction_group)]
     interactions_subset = interactions[interactions["converted"].isin(list(lr_interactions.interaction_group))].copy()
@@ -227,64 +249,139 @@ def plot_cpdb_chord(
     tmpdf["interaction_celltype"] = [
         DEFAULT_SEP.join(sorted([a, b, c])) for a, b, c in zip(tmpdf.producer, tmpdf.receiver, tmpdf.converted_pair)
     ]
-    celltypes = sorted(list(set(list(tmpdf.producer) + list(tmpdf.receiver))))
-    celltype_start_dict = {r: k * gap for k, r in enumerate(celltypes)}
-    celltype_end_dict = {r: k + gap for k, r in enumerate(celltypes)}
+    celltypes = (
+        adata.obs[celltype_key].cat.categories if adata.obs[celltype_key].dtype.name == "category" else list(set(adata.obs[celltype_key]))
+    )
     interactions = sorted(list(set(tmpdf["interaction_celltype"])))
-    interaction_start_dict = {r: k * gap for k, r in enumerate(interactions)}
-    # interaction_end_dict = {r: k + gap for k, r in enumerate(interactions)}
-    tmpdf["from"] = [celltype_start_dict[x] for x in tmpdf.producer]
-    tmpdf["to"] = [celltype_end_dict[x] for x in tmpdf.receiver]
+    interaction_start_dict = {r: k for k, r in enumerate(interactions)}
     tmpdf["interaction_value"] = [
-        j * scale_lw + interaction_start_dict[x] if pd.notnull(j) else np.nan
-        for j, x in zip(tmpdf.interaction_value, tmpdf.interaction_celltype)
+        j + interaction_start_dict[x] if pd.notnull(j) else np.nan for j, x in zip(tmpdf.interaction_value, tmpdf.interaction_celltype)
     ]
-    tmpdf["start"] = round(tmpdf["interaction_value"] + tmpdf["from"])
-    tmpdf["end"] = round(tmpdf["interaction_value"] + tmpdf["to"])
-    if edge_col_dict is None:
+    # filter to specific interactions if interaction is provided with '-'
+    if interaction is not None:
+        if isinstance(interaction, str):
+            if "-" in interaction:
+                tmpdf = tmpdf[tmpdf.converted_pair.isin([interaction])]
+            else:
+                tmpdf = tmpdf[tmpdf.converted_pair.str.contains(interaction)]
+        elif isinstance(interaction, list):
+            tmpint = []
+            for intx in interaction:
+                if "-" in interaction:
+                    tmpint.append(interaction)
+            if len(tmpint) > 0:
+                tmpdf = tmpdf[tmpdf.converted_pair.isin([tmpint])]
+            else:
+                tmpdf = tmpdf[tmpdf.converted_pair.str.contains("|".join(lr_intx))]
+    if link_colors is None:
         uni_interactions = list(set(tmpdf.converted_pair))
-        col_step = 1 / len(uni_interactions)
-        start_step = 0
-        edge_col_dict = {}
-        for i in uni_interactions:
-            edge_col_dict[i] = edge_cmap(start_step)
-            start_step += col_step
-    circle = Gcircle(figsize=figsize)
-    if face_col_dict is None:
+        if len(uni_interactions) > len(DEFAULT_PAL):
+            link_colors = dict(zip(uni_interactions, [next(DEFAULT_PAL_CYCLER) for i in range(len(uni_interactions))]))
+        else:
+            link_colors = dict(zip(uni_interactions, [DEFAULT_PAL[i] for i in range(len(uni_interactions))]))
+
+    celltypes = sorted(list(set(list(tmpdf.producer) + list(tmpdf.receiver))))
+    # Sort the 'converted_pair' values alphabetically
+    tmpdf = tmpdf.sort_values("converted_pair")
+    # add optional offset to each interaction_value and rounding to the nearest integer
+    tmpdf["interaction_value"] = round(tmpdf["interaction_value"].fillna(0) + link_offset)
+    # For each celltype ('producer'), create a cumulative interaction value tracker
+    cumulative_interaction_dict = defaultdict(int)
+    start_values, end_values = [], []
+    for _, row in tmpdf.iterrows():
+        start_values.append(cumulative_interaction_dict[row["producer"]])
+        if row["interaction_value"] > 0:
+            cumulative_interaction_dict[row["producer"]] += row["interaction_value"]
+        end_values.append(cumulative_interaction_dict[row["producer"]])
+    # Add the 'start' and 'end' columns
+    tmpdf["start"] = start_values
+    tmpdf["end"] = end_values
+    # Set the starting value for the receiver
+    rec_start = {}
+    for celltype in celltypes:
+        rec_start[celltype] = max(tmpdf[tmpdf.producer == celltype].end)
+    # For each row in the dataframe, calculate the 'start' and 'end' values for the receiver
+    start_values, end_values = [], []
+    for _, r in tmpdf.iterrows():
+        start_values.append(rec_start[r.receiver])
+        rec_start[r.receiver] += r.interaction_value
+        end_values.append(rec_start[r.receiver])
+    # This is the position of the end of the links (i.e. the target)
+    tmpdf["start_2"] = start_values
+    tmpdf["end_2"] = end_values
+    sectors = {}
+    # the maximum size of each sector is the maximum value of 'end_2' for each celltype
+    for celltype in celltypes:
+        tmp = tmpdf[tmpdf.receiver == celltype]
+        if tmp.shape[0] > 0:
+            sectors[celltype] = max(tmp.end_2)
+        else:
+            tmp = tmpdf[tmpdf.producer == celltype]
+            if tmp.shape[0] > 0:
+                sectors[celltype] = max(tmp.end_2)
+    if equal_sector_size:
+        max_sector = max(sectors.values())
+        sectors = {k: max_sector for k in sectors}
+    else:
+        # offset the sector by 10 if any of the values are 0
+        for sector in sectors:
+            if sectors[sector] == 0:
+                sectors[sector] = 10
+    tmpdf = tmpdf[tmpdf.interaction_value > link_offset]
+    tmpdf = tmpdf.reset_index(drop=True)
+    if keep_celltypes is not None:
+        tmpdf["celltype_test1"] = tmpdf["producer"] + DEFAULT_SEP + tmpdf["receiver"]
+        tmpdf["celltype_test2"] = tmpdf["receiver"] + DEFAULT_SEP + tmpdf["producer"]
+        if len(keep_celltypes) == 2:
+            test_celltype = keep_celltypes[0] + DEFAULT_SEP + keep_celltypes[1]
+            tmpdf = tmpdf[tmpdf["celltype_test1"].isin([test_celltype]) | tmpdf["celltype_test2"].isin([test_celltype])]
+            tmpdf = tmpdf.drop(["celltype_test1", "celltype_test2"], axis=1)
+        elif len(keep_celltypes) > 2:
+            tests = list(product(keep_celltypes, keep_celltypes))
+            test2 = []
+            for test in tests:
+                test2.append(test[0] + DEFAULT_SEP + test[1])
+            tmpdf = tmpdf[tmpdf["celltype_test1"].isin(test2) | tmpdf["celltype_test2"].isin(test2)]
+            tmpdf = tmpdf.drop(["celltype_test1", "celltype_test2"], axis=1)
+        else:
+            keep_celltypes = [keep_celltypes] if isinstance(keep_celltypes, str) else keep_celltypes
+            tmpdf = tmpdf[tmpdf.producer.isin(keep_celltypes) | tmpdf.receiver.isin(keep_celltypes)]
+    if sector_colors is None:
         if celltype_key + "_colors" in adata.uns:
             if adata.obs[celltype_key].dtype.name == "category":
-                face_col_dict = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
+                sector_colors = dict(zip(adata.obs[celltype_key].cat.categories, adata.uns[celltype_key + "_colors"]))
             else:
-                face_col_dict = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
-    for _, j in tmpdf.iterrows():
-        name = j["producer"]
-        if face_col_dict is None:
-            col = None
+                sector_colors = dict(zip(list(set(adata.obs[celltype_key])), adata.uns[celltype_key + "_colors"]))
         else:
-            # col = face_col_dict[name] if name in face_col_dict else next(DEFAULT_PAL) # cycle through the default palette
-            col = face_col_dict[name] if name in face_col_dict else "#e7e7e7"  # or just make them grey?
-        arc = Garc(
-            arc_id=name,
-            size=size,
-            interspace=interspace,
-            raxis_range=raxis_range,
-            labelposition=labelposition,
-            label_visible=label_visible,
-            facecolor=col,
+            if len(celltypes) > len(DEFAULT_PAL):
+                sector_colors = dict(zip(celltypes, [next(DEFAULT_PAL_CYCLER) for i in range(len(celltypes))]))
+            else:
+                sector_colors = dict(zip(celltypes, [DEFAULT_PAL[i] for i in range(len(celltypes))]))
+    for celltype in celltypes:
+        if celltype not in sector_colors:
+            sector_colors[celltype] = "#f7f7f7"  # just make it off-white if not present
+    circos = Circos(sectors, space=5)
+    for sector in circos.sectors:
+        track = sector.add_track(r_lim=sector_radius_limit)
+        track.axis(fc=sector_colors[sector.name])
+        track.text(text=sector.name, **sector_text_kwargs)
+    for _, r in tmpdf.iterrows():
+        if not same_producer_colors:
+            if link_colors is not None:
+                if isinstance(link_colors, dict):
+                    link_color = link_colors[r.converted_pair] if r.converted_pair in link_colors else "#f7f7f700"
+                elif isinstance(link_colors, str):
+                    link_color = link_colors
+        else:
+            link_color = sector_colors[r.producer]
+        circos.link(
+            sector_region1=(r.producer, r.start, r.end), sector_region2=(r.receiver, r.start_2, r.end_2), color=link_color, **link_kwargs
         )
-        circle.add_garc(arc)
-    circle.set_garcs(-180, 180)
-    for _, j in tmpdf.iterrows():
-        if pd.notnull(j["interaction_value"]):
-            lr = j["converted_pair"]
-            start_size = j["start"] + j["interaction_value"] / scale_lw
-            end_size = j["end"] + j["interaction_value"] / scale_lw
-            start_size = 1 if start_size < 1 else start_size
-            end_size = 1 if end_size < 1 else end_size
-            source = (j["producer"], j["start"] - 1, start_size, raxis_range[0] - size)
-            destination = (j["receiver"], j["end"] - 1, end_size, raxis_range[0] - size)
-            circle.chord_plot(source, destination, edge_col_dict[lr] if lr in edge_col_dict else "#f7f7f700")
+    circos.plotfig()
+    # plot legend
+    if isinstance(link_colors, dict):
+        line_handles = [Line2D([], [], color=value, label=key, linewidth=legend_width) for key, value in link_colors.items()]
+        line_legend = circos.ax.legend(handles=line_handles, **legend_kwargs)
+        circos.ax.add_artist(line_legend)
 
-    custom_lines = [Line2D([0], [0], color=val, lw=4) for val in edge_col_dict.values()]
-    circle.figure.legend(custom_lines, edge_col_dict.keys(), **legend_params)
-    return circle
+    return circos
