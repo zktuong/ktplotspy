@@ -45,7 +45,7 @@ test = ["anndata>=0.7.6,<0.11.2", "black", "pytest-cov"]
 docs = [
     "scanpy",
     "ipykernel",
-    "sphinx<8",
+    "sphinx<9",
     "nbsphinx<=0.9.6",
     "sphinx-autodoc-typehints<=3.0.0",
     "sphinx_rtd_theme<=3.0.2",
