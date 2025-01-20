@@ -46,7 +46,7 @@ docs = [
     "ipykernel",
     "sphinx<9",
     "nbsphinx<=0.9.6",
-    "sphinx-autodoc-typehints<=3.0.0",
+    "sphinx-autodoc-typehints<=3.0.1",
     "sphinx_rtd_theme<=3.0.2",
     "readthedocs-sphinx-ext<=2.2.5",
     "recommonmark<=0.7.1",
