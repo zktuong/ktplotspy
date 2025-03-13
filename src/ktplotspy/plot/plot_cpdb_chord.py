@@ -156,7 +156,7 @@ def plot_cpdb_chord(
         _interactions_subset = interactions_subset.loc[complex_id].copy()
         _interactions_subset_simp = interactions_subset.loc[simple_id].copy()
         complex_idx1 = [i for i, j in _interactions_subset.partner_b.items() if re.search("complex:", j)]
-        complex_idx2 = [i for i, j in _interactions_subset.partner_a.items() if re.search("complex:", j)]
+        complex_idx2 = [i for i, j in _interactions_subset.partner_a.items() if re.search("complex:", j) and i not in complex_idx1]
         # complex_idx
         simple_1 = list(_interactions_subset.loc[complex_idx1, "interacting_pair"])
         simple_2 = list(_interactions_subset.loc[complex_idx2, "interacting_pair"])
