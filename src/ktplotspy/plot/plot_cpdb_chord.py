@@ -167,7 +167,8 @@ def plot_cpdb_chord(
         for i, _ in enumerate(simple_2):
             simple_2[i] = re.sub(partner_2[i] + "_|_" + partner_2[i], "", simple_2[i])
         tmpdf = pd.concat([pd.DataFrame(zip(simple_1, partner_1)), pd.DataFrame(zip(partner_2, simple_2))])
-        tmpdf.index = complex_id
+        tmpdf.index = complex_idx1 + complex_idx2
+        tmpdf = tmpdf.sort_index()
         tmpdf.columns = ["id_a", "id_b"]
         _interactions_subset = pd.concat([_interactions_subset, tmpdf], axis=1)
         simple_tm0 = pd.DataFrame(
