@@ -34,11 +34,11 @@ post in the issue tracker and I will get back to you.
 Citation
 --------
 
-If you find this useful, please cite the following preprint:
+If you find this useful, please cite the following paper published in **Nature Protocols**:
 
-.. [Troule2023]  Troulé K, Petryszak R, Prete M, Cranley J, Harasty A, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. (2023)
-   *CellPhoneDB v5: inferring cell-cell communication from single-cell multiomics data.*,
-   `arXiv <https://arxiv.org/abs/2311.04567>`__. preprint arXiv:2311.04567. 2023 Nov 8.
+.. [Troule2025]  Troulé K, Petryszak R, Cakir B, Cranley J, Harasty A, Prete M, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. 2025. 
+   *CellPhoneDB v5: inferring cell–cell communication from single-cell multiomics data.*,
+   `Nature Protocols <https://www.nature.com/articles/s41596-024-01137-1>`__. doi:10.1038/s41596-024-01137-1.
 
 as well, as github repositories. Also leave a star at the
 `ktplotspy <https://www.github.com/zktuong/ktplotspy/>`__ and the original
