@@ -32,7 +32,7 @@ Citation
 
 If you find this useful, please cite the following paper published in **Nature Protocols**:
 
-.. [Troule2025]  Troulé K, Petryszak R, Cakir B, Cranley J, Harasty A, Prete M, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. 2025. 
+.. [Troule2025]  Troulé K, Petryszak R, Cakir B, Cranley J, Harasty A, Prete M, Tuong ZK, Teichmann SA, Garcia-Alonso L, Vento-Tormo R. 2025.
    *CellPhoneDB v5: inferring cell–cell communication from single-cell multiomics data.*,
    `Nature Protocols <https://www.nature.com/articles/s41596-024-01137-1>`__. doi:10.1038/s41596-024-01137-1.
 
