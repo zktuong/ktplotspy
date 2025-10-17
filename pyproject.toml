@@ -104,7 +104,7 @@ test = { features = ["py312", "test"], solve-group = "py312" }
 py310 = ["py310", "docs", "test"]
 py311 = ["py311", "docs", "test"]
 py312 = ["py312", "docs", "test"]
-# py313 = ["py313", "docs", "test"] # until biopython is updated to >=1.85 on pypi
+py313 = ["py313", "docs", "test"]                              # until biopython is updated to >=1.85 on pypi
 
 [tool.pixi.tasks]
 test = "pytest"
@@ -116,5 +116,5 @@ python = "~=3.10.0"
 python = "~=3.11.0"
 [tool.pixi.feature.py312.dependencies]
 python = "~=3.12.0"
-# [tool.pixi.feature.py313.dependencies]
-# python = "~=3.13.0"
+[tool.pixi.feature.py313.dependencies]
+python = "~=3.13.0"
