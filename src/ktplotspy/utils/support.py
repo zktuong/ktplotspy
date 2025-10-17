@@ -640,72 +640,21 @@ def generate_df(
             ia,
             ib,
         ) in interactions_subset.iterrows():
-            if ra:
-                if rb:
-                    _out = [
-                        ici,
-                        ia,
-                        ib,
-                        ra,
-                        rb,
-                        ip,
-                        cp,
-                        px,
-                        rx,
-                        producer_expression.loc[ia, px],
-                        producer_fraction.loc[ia, px],
-                        receiver_expression.loc[ib, rx],
-                        receiver_fraction.loc[ib, rx],
-                    ]
-                else:
-                    _out = [
-                        ici,
-                        ia,
-                        ib,
-                        ra,
-                        rb,
-                        ip,
-                        cp,
-                        px,
-                        rx,
-                        producer_expression.loc[ia, px],
-                        producer_fraction.loc[ia, px],
-                        receiver_expression.loc[ib, rx],
-                        receiver_fraction.loc[ib, rx],
-                    ]
-            else:
-                if rb:
-                    _out = [
-                        ici,
-                        ia,
-                        ib,
-                        ra,
-                        rb,
-                        ip,
-                        cp,
-                        px,
-                        rx,
-                        producer_expression.loc[ia, px],
-                        producer_fraction.loc[ia, px],
-                        receiver_expression.loc[ib, rx],
-                        receiver_fraction.loc[ib, rx],
-                    ]
-                else:  # pragma: no cover
-                    _out = [
-                        ici,
-                        ia,
-                        ib,
-                        ra,
-                        rb,
-                        ip,
-                        cp,
-                        px,
-                        rx,
-                        producer_expression.loc[ia, px],
-                        producer_fraction.loc[ia, px],
-                        receiver_expression.loc[ib, rx],
-                        receiver_fraction.loc[ib, rx],
-                    ]
+            _out = [
+                ici,
+                ia,
+                ib,
+                ra,
+                rb,
+                ip,
+                cp,
+                px,
+                rx,
+                producer_expression.loc[ia, px],
+                producer_fraction.loc[ia, px],
+                receiver_expression.loc[ib, rx],
+                receiver_fraction.loc[ib, rx],
+            ]
             out.append(
                 pd.DataFrame(
                     _out,
@@ -733,14 +682,14 @@ def generate_df(
     _df["barcode"] = [pr + "-" + rr + sep + cp for pr, rr, cp in zip(_df.producer, _df.receiver, _df.converted_pair)]
     _df = _df.reset_index(drop=True)
     for i, j in _df.iterrows():
-        if (j["receptor_b"]) and not (j["receptor_a"]):
+        if (j["receptor_a"]) and not (j["receptor_b"]):
             ici, lg, rc = j["id_cp_interaction"], j["receptor"], j["ligand"]
             con_pair = lg + "-" + rc
-            ra, rb = j["receptor_b"], j["receptor_a"]
+            ra, rb = j["receptor_a"], j["receptor_b"]
             px, rx = j["receiver"], j["producer"]
             pre, prf = j["receiver_expression"], j["receiver_fraction"]
             rce, rcf = j["producer_expression"], j["producer_fraction"]
-            tos, frs = j["from"], j["to"]
+            tos, frs = j["to"], j["from"]
             _df.at[i, "id_cp_interaction"] = ici
             _df.at[i, "ligand"] = lg
             _df.at[i, "receptor"] = rc
