@@ -706,6 +706,6 @@ def generate_df(
             _df.at[i, "to"] = tos
         else:
             ici, lg, rc = j["id_cp_interaction"], j["ligand"], j["receptor"]
-            con_pair = rc + "-" + lg
+            con_pair = lg + "-" + rc
             _df.at[i, "converted_pair"] = con_pair
     return _df
