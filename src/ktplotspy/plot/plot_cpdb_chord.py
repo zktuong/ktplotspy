@@ -262,14 +262,38 @@ def plot_cpdb_chord(
     if interaction is not None:
         if isinstance(interaction, str):
             if "-" in interaction:
-                tmpdf = tmpdf[tmpdf.converted_pair.isin([interaction])]
+                # first check if the interaction is exactly in the converted_pair
+                int_check = interaction in list(tmpdf.converted_pair.unique())
+                if not int_check:
+                    # flip the so that the first becomes last
+                    interaction_ = "-".join(interaction.split("-")[::-1])
+                    int_check = interaction_ in list(tmpdf.converted_pair.unique())
+                    if not int_check:
+                        raise ValueError(f"Neither {interaction} nor {interaction_} are found in the data.")
+                    else:
+                        intx = interaction_
+                else:
+                    intx = interaction
+                tmpdf = tmpdf[tmpdf.converted_pair.isin([intx])]
             else:
                 tmpdf = tmpdf[tmpdf.converted_pair.str.contains(interaction)]
         elif isinstance(interaction, list):
             tmpint = []
             for intx in interaction:
                 if "-" in interaction:
-                    tmpint.append(interaction)
+                    # first check if the interaction is exactly in the converted_pair
+                    int_check = interaction in list(tmpdf.converted_pair.unique())
+                    if not int_check:
+                        # flip the so that the first becomes last
+                        interaction_ = "-".join(interaction.split("-")[::-1])
+                        int_check = interaction_ in list(tmpdf.converted_pair.unique())
+                        if not int_check:
+                            raise ValueError(f"Neither {interaction} nor {interaction_} are found in the data.")
+                        else:
+                            intx = interaction_
+                    else:
+                        intx = interaction
+                    tmpint.append(intx)
             if len(tmpint) > 0:
                 tmpdf = tmpdf[tmpdf.converted_pair.isin([tmpint])]
             else:
