@@ -86,7 +86,7 @@ def plot_cpdb_heatmap(
     all_int.columns = intr_pairs
     if cell_types is None:
         cell_types = sorted(list(set([y for z in [x.split(default_sep) for x in all_intr.columns[col_start:]] for y in z])))
-    cell_types_comb = ["|".join(list(x)) for x in list(product(cell_types, cell_types))]
+    cell_types_comb = [f"{default_sep}".join(list(x)) for x in list(product(cell_types, cell_types))]
     cell_types_keep = [ct for ct in all_int.index if ct in cell_types_comb]
     empty_celltypes = list(set(cell_types_comb) ^ set(cell_types_keep))
     all_int = all_int.loc[cell_types_keep]
@@ -102,7 +102,7 @@ def plot_cpdb_heatmap(
     else:
         all_count["significant"] = all_count.value < alpha
     count1x = all_count[["index", "significant"]].groupby("index").agg({"significant": "sum"})
-    tmp = pd.DataFrame([x.split("|") for x in count1x.index])
+    tmp = pd.DataFrame([x.split(f"{default_sep}") for x in count1x.index])
     count_final = pd.concat([tmp, count1x.reset_index(drop=True)], axis=1)
     count_final.columns = ["SOURCE", "TARGET", "COUNT"]
     if any(count_final.COUNT > 0):
