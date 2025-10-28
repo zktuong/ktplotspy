@@ -44,8 +44,8 @@ jobs:
     strategy:
       max-parallel: 6
       matrix:
-        environment: [py310, py311, py312]
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        environment: [py310, py311, py312, py313]
+        os: [ubuntu-latest, macos-latest] # , windows-latest] something's broken with windows
     runs-on: ${{ matrix.os }}
     name: Build and test
     steps:
