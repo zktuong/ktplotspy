@@ -101,6 +101,7 @@ ktplotspy = { path = ".", editable = true }
 default = ["py311"]
 docs = { features = ["py312", "docs"], solve-group = "py312" }
 test = { features = ["py312", "test"], solve-group = "py312" }
+py311 = ["py311", "docs", "test"]
 py312 = ["py312", "docs", "test"]
 py313 = ["py313", "docs", "test"]                              # until biopython is updated to >=1.85 on pypi
 
