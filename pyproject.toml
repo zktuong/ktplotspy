@@ -27,10 +27,10 @@ keywords = [
 readme = { file = "README.rst", content-type = "text/x-rst" }
 requires-python = ">=3.10"
 dependencies = [
-    "pandas>=1.5,<3.0",
-    "numpy<=2.2.6",
+    "pandas>=1.5.0",
+    "numpy>=1.0.0",
     "plotnine>=0.13.0",
-    "seaborn>=0.12,<0.14",
+    "seaborn>=0.12",
     "requests>=2.28.0",
     "pycirclize>=1.7.2",
 ]
@@ -44,12 +44,12 @@ test = ["anndata>=0.7.6,<0.11.5", "black", "pytest-cov"]
 docs = [
     "scanpy",
     "ipykernel",
-    "sphinx<8.3",
-    "nbsphinx<=0.9.8",
-    "sphinx-autodoc-typehints<=3.1.0",
-    "sphinx_rtd_theme<=3.1.0",
-    "readthedocs-sphinx-ext<=2.2.5",
-    "recommonmark<=0.7.1",
+    "sphinx>=7",
+    "nbsphinx>=0.7.0",
+    "sphinx-autodoc-typehints>=2.0.0",
+    "sphinx_rtd_theme>=2.0.0",
+    "readthedocs-sphinx-ext>=1.0.0",
+    "recommonmark>=0.6.0",
 ]
 
 [tool.pytest.ini_options]
