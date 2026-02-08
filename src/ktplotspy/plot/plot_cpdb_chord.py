@@ -292,7 +292,7 @@ def plot_cpdb_chord(
                         else:
                             intx = intx_
                     else:
-                        pass # intx is already assigned
+                        pass  # intx is already assigned
                     tmpint.append(intx)
             if len(tmpint) > 0:
                 tmpdf = tmpdf[tmpdf.converted_pair.isin(tmpint)]
