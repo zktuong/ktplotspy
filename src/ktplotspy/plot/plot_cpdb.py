@@ -191,10 +191,11 @@ def plot_cpdb(
         # Copy the values from means_mat to new_df
         tmp_pvals_mat.iloc[:, :col_start] = means_mat.iloc[:, :col_start]
         tmp_pvals_mat.update(pvals_mat)
+        num_cols = tmp_pvals_mat.select_dtypes(include="number").columns
         if degs_analysis:
-            tmp_pvals_mat.fillna(0, inplace=True)
+            tmp_pvals_mat[num_cols] = tmp_pvals_mat[num_cols].fillna(0)
         else:
-            tmp_pvals_mat.fillna(1, inplace=True)
+            tmp_pvals_mat[num_cols] = tmp_pvals_mat[num_cols].fillna(1)
         pvals_mat = tmp_pvals_mat.copy()
 
     if (interaction_scores is not None) & (cellsign is not None):
@@ -390,7 +391,7 @@ def plot_cpdb(
             exclude_interactions = [exclude_interactions]
         df = df[~df.interaction_group.isin(exclude_interactions)]
 
-    df["neglog10p"] = abs(-1 * np.log10(df.pvals))
+    df["neglog10p"] = abs(-1 * np.log10(df.pvals.astype(float)))
     df["neglog10p"] = [0 if x >= 0.05 else j for x, j in zip(df["pvals"], df["neglog10p"])]
     df["significant"] = ["yes" if x < alpha else np.nan for x in df.pvals]
 
