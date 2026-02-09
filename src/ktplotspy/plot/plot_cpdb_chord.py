@@ -280,22 +280,22 @@ def plot_cpdb_chord(
         elif isinstance(interaction, list):
             tmpint = []
             for intx in interaction:
-                if "-" in interaction:
+                if "-" in intx:
                     # first check if the interaction is exactly in the converted_pair
-                    int_check = interaction in list(tmpdf.converted_pair.unique())
+                    int_check = intx in list(tmpdf.converted_pair.unique())
                     if not int_check:
                         # flip the so that the first becomes last
-                        interaction_ = "-".join(interaction.split("-")[::-1])
-                        int_check = interaction_ in list(tmpdf.converted_pair.unique())
+                        intx_ = "-".join(intx.split("-")[::-1])
+                        int_check = intx_ in list(tmpdf.converted_pair.unique())
                         if not int_check:
-                            raise ValueError(f"Neither {interaction} nor {interaction_} are found in the data.")
+                            raise ValueError(f"Neither {intx} nor {intx_} are found in the data.")
                         else:
-                            intx = interaction_
+                            intx = intx_
                     else:
-                        intx = interaction
+                        pass  # intx is already assigned
                     tmpint.append(intx)
             if len(tmpint) > 0:
-                tmpdf = tmpdf[tmpdf.converted_pair.isin([tmpint])]
+                tmpdf = tmpdf[tmpdf.converted_pair.isin(tmpint)]
             else:
                 tmpdf = tmpdf[tmpdf.converted_pair.str.contains("|".join(lr_intx))]
     if link_colors is None:
