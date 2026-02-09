@@ -40,7 +40,7 @@ homepage = "https://github.com/zktuong/ktplotspy"
 repository = "https://github.com/zktuong/ktplotspy"
 
 [project.optional-dependencies]
-test = ["anndata>=0.7.6,<0.12.10", "black", "pytest-cov"]
+test = ["anndata>=0.7.6,<0.12.11", "black", "pytest-cov"]
 docs = [
     "scanpy",
     "ipykernel",
